@@ -1,0 +1,2808 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vidora V101</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f5f5f5;color:#111}
+header{position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid #ddd}
+.top{height:58px;display:flex;align-items:center;gap:12px;padding:0 12px}
+.logo{font-size:25px;font-weight:800;color:#e53935}.search{flex:1;padding:10px 13px;border:1px solid #ddd;border-radius:22px;background:#f7f7f7}
+.icon{border:0;background:none;font-size:23px;cursor:pointer}
+.page{padding-bottom:75px;max-width:700px;margin:auto}
+.stories{display:flex;gap:12px;overflow:auto;padding:12px;background:#fff}
+.story{min-width:72px;text-align:center;font-size:12px}.story img{width:58px;height:58px;border-radius:50%;object-fit:cover;border:3px solid #e53935}
+.card{background:#fff;margin:10px 0;border-radius:10px;overflow:hidden}
+
+.thumbnail-image{width:100%;height:100%;aspect-ratio:auto;object-fit:cover;display:block;background:#000}
+.channel-thumbnail-image{width:145px;height:82px;object-fit:cover;border-radius:8px;background:#eee;flex:none;display:block}
+
+.video{width:100%;aspect-ratio:16/9;background:#000;display:block}
+.info{padding:10px}.title{font-weight:700;font-size:17px;margin-bottom:7px}.meta{color:#666;font-size:13px}
+.actions{display:flex;gap:8px;padding:8px 10px;overflow:auto}
+.actions button{border:0;background:#eee;border-radius:20px;padding:9px 13px;white-space:nowrap;cursor:pointer}
+.actions button.active{background:#111;color:#fff}
+.channel{display:flex;align-items:center;gap:10px;padding:10px;border-top:1px solid #eee}
+.avatar{width:42px;height:42px;border-radius:50%;object-fit:cover}
+.subscribe{margin-left:auto;background:#e53935;color:#fff;border:0;border-radius:20px;padding:10px 14px;font-weight:700}
+.subscribe.subscribed{background:#f4c20d;color:#111}
+.hidden{display:none!important}
+.panel{background:#fff;margin:10px;border-radius:12px;padding:15px}
+.panel h2{margin-top:0}
+input,textarea{width:100%;padding:11px;border:1px solid #ccc;border-radius:8px;margin:6px 0}
+.primary{width:100%;padding:12px;border:0;border-radius:8px;background:#e53935;color:#fff;font-weight:700;margin-top:8px}
+.bottom{position:fixed;bottom:0;left:0;right:0;height:64px;background:#fff;border-top:1px solid #ddd;display:flex;justify-content:space-around;align-items:center;z-index:30}
+.bottom button{background:none;border:0;font-size:12px}.bottom span{display:block;font-size:21px}
+.profileHead{display:flex;align-items:center;gap:14px}.bigAvatar{width:80px;height:80px;border-radius:50%;object-fit:cover}
+.comment{border-top:1px solid #eee;padding:8px 0}.small{font-size:12px;color:#777}
+
+.card{scroll-margin-top:68px}
+
+.watch-card{background:#fff}
+.watch-video{width:100%;aspect-ratio:16/9;background:#000;display:block;position:sticky;top:58px;z-index:25;object-fit:contain}
+.watch-info{padding:12px}.watch-title{font-size:18px;font-weight:700;line-height:1.35}.watch-meta{font-size:13px;color:#666;margin-top:6px}
+.watch-actions{display:flex;gap:8px;padding:8px 12px;overflow:auto;border-bottom:1px solid #eee}
+.watch-actions button{border:0;background:#eee;border-radius:20px;padding:9px 14px;white-space:nowrap;font-size:14px}
+.watch-actions button.active{background:#111;color:#fff}
+.watch-channel{display:flex;align-items:center;gap:10px;padding:12px;border-bottom:1px solid #eee}
+.watch-channel .subscribe{margin-left:auto}
+.bell-btn{border:0;background:#eee;border-radius:50%;width:42px;height:42px;font-size:20px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}
+.related-title{font-weight:700;font-size:17px;padding:14px 12px 4px}
+.related .card{margin:10px 0;border-radius:0}
+.related .video{cursor:pointer}
+.notify-box{position:fixed;left:50%;bottom:72px;transform:translateX(-50%);width:min(92vw,360px);background:#fff;border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,.28);padding:12px;z-index:50}
+.notify-box h3{margin:4px 0 8px}.notify-option{display:flex;align-items:center;gap:12px;padding:12px 6px;border:0;background:#fff;width:100%;text-align:left;font-size:15px}.notify-option span:last-child{margin-left:auto}
+.related-item{cursor:pointer;position:relative}
+.related-item .related-preview{pointer-events:none}
+.watch-related{margin:0 12px 12px;padding:9px 14px;border:0;border-radius:18px;background:#eee;font-weight:700;cursor:pointer}
+.related-item:focus{outline:2px solid #e53935;outline-offset:-2px}
+@media(max-width:520px){.watch-title{font-size:17px}}
+.watch-card{overflow:visible}
+
+/* V43 YouTube-style compact mini player: small video on the left, info on the right */
+.mini-player{position:fixed;right:8px;bottom:70px;width:min(96vw,430px);height:82px;background:#111;color:#fff;border-radius:8px;box-shadow:0 6px 22px rgba(0,0,0,.35);z-index:45;display:none;overflow:hidden;align-items:center}
+.mini-player.active{display:flex}
+.mini-video-wrap{position:relative;width:140px;height:79px;flex:0 0 140px;background:#000;cursor:pointer;overflow:hidden}
+.mini-video-wrap video{width:100%;height:100%;display:block;object-fit:cover;background:#000}
+.mini-close{position:absolute;right:4px;top:4px;width:25px;height:25px;border:0;border-radius:50%;background:rgba(0,0,0,.72);color:#fff;font-size:18px;line-height:25px;padding:0;z-index:2}
+.mini-info{min-width:0;flex:1;padding:8px 10px}
+.mini-title{padding:0;font-size:13px;font-weight:700;line-height:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mini-hint{padding:3px 0 0;font-size:10px;color:#bbb;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media(max-width:520px){.mini-player{right:6px;bottom:70px;width:calc(100vw - 12px);height:78px}.mini-video-wrap{width:128px;height:72px;flex-basis:128px}.mini-info{padding:7px 9px}}
+
+/* V27 YouTube-style creator upload flow */
+.upload-shell{padding:0;margin:10px;background:#fff;border-radius:14px;overflow:hidden}
+.upload-head{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid #eee;position:sticky;top:58px;background:#fff;z-index:5}
+.upload-head button{border:0;background:none;font-size:25px;cursor:pointer}
+.upload-head h2{margin:0;font-size:20px}
+.upload-body{padding:14px 16px 100px}
+.upload-step{display:none}.upload-step.active{display:block}
+.upload-pick{border:1px dashed #bbb;border-radius:14px;padding:28px 15px;text-align:center;background:#fafafa}
+.upload-pick .big{font-size:42px}.upload-pick button{border:0;border-radius:22px;padding:11px 18px;font-weight:700;background:#eee;cursor:pointer}
+.upload-preview{width:100%;aspect-ratio:16/9;background:#000;border-radius:10px;object-fit:contain;display:block}
+.upload-thumb-overlay{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;border-radius:10px;z-index:20;display:none;pointer-events:none;background:#000}
+.upload-selected-thumb{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;border-radius:10px;z-index:30;display:none;background:#000}
+.upload-video-wrap{position:relative;width:100%;aspect-ratio:16/9;min-height:1px;background:#000;border-radius:10px;overflow:hidden}
+.upload-video-wrap.has-selected-thumbnail{background:#000 center/contain no-repeat}
+.upload-video-wrap.has-selected-thumbnail .upload-preview{display:none!important;visibility:hidden!important;opacity:0!important}
+.upload-video-wrap.has-selected-thumbnail .upload-thumb-overlay{display:block!important;visibility:visible!important;opacity:1!important}
+.upload-file-name{font-size:12px;color:#666;margin:7px 0 12px;word-break:break-word}
+.trim-box{margin-top:14px}.trim-title{display:flex;justify-content:space-between;font-weight:700;font-size:14px}
+.trim-track{position:relative;height:58px;margin:12px 0 8px;border-radius:10px;background:linear-gradient(90deg,#333,#666,#333);overflow:hidden}
+.trim-track:before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 18px,rgba(255,255,255,.18) 19px 20px)}
+.trim-range{position:absolute;left:0;right:0;top:0;bottom:0;border:3px solid #fff;border-radius:10px;pointer-events:none}
+.trim-input{width:100%;margin:0;accent-color:#e53935}
+.trim-times{display:flex;justify-content:space-between;font-size:12px;color:#666}
+.upload-field{margin-top:15px}.upload-field label{display:block;font-weight:700;font-size:14px;margin-bottom:5px}
+.upload-field input,.upload-field textarea,.upload-field select{font-size:15px;margin:0}
+.detail-row{display:flex;align-items:center;gap:12px;padding:15px 2px;border-bottom:1px solid #eee;cursor:pointer}
+.detail-row .detail-icon{width:28px;text-align:center;font-size:22px}.detail-row .detail-main{flex:1}.detail-row .detail-main b{display:block;font-size:15px}.detail-row .detail-main span{display:block;color:#666;font-size:13px;margin-top:3px}.detail-row .chev{font-size:23px;color:#666}
+.show-more{width:100%;border:0;border-radius:24px;background:#f1f1f1;padding:13px;font-weight:700;margin:12px 0;cursor:pointer}
+.more-options{display:none}.more-options.open{display:block}
+.upload-actions{position:sticky;bottom:64px;background:#fff;padding:10px 0 0;margin-top:14px;z-index:4}
+.upload-btn{width:100%;padding:14px;border:0;border-radius:25px;background:#111;color:#fff;font-size:16px;font-weight:800;cursor:pointer}.upload-btn:disabled{opacity:.55;cursor:not-allowed}
+.upload-progress{display:none;margin:0 0 10px}.progress-bg{height:7px;background:#eee;border-radius:10px;overflow:hidden}.progress-fill{height:100%;width:0;background:#e53935;transition:width .15s}.progress-text{text-align:center;font-size:12px;color:#666;margin-top:5px}
+.type-tabs{display:flex;gap:8px;margin-bottom:14px}.type-tabs button{flex:1;border:1px solid #ddd;background:#fff;border-radius:20px;padding:10px;font-weight:700}.type-tabs button.active{background:#111;color:#fff;border-color:#111}
+.upload-success{text-align:center;padding:25px}.upload-success .ok{font-size:52px}
+@media(max-width:520px){.upload-body{padding-left:12px;padding-right:12px}.upload-head{top:58px}}
+
+/* V30 one-channel + Shorts shortcut */
+.back-btn{border:0;background:none;font-size:30px;cursor:pointer;padding:0 8px 4px}
+.channel-lock{margin-top:8px;padding:10px;border-radius:10px;background:#f7f7f7;color:#555;font-size:13px}
+.channel-lock.ok{background:#f1f8e9;color:#33691e}
+.shorts-head{position:absolute;left:0;right:0;top:0;z-index:20;background:linear-gradient(to bottom,rgba(0,0,0,.62),transparent);padding:16px 12px 28px;color:#fff;border:0}.shorts-head h2{margin:0 0 0 44px;font-size:18px}.shorts-head .back-btn{position:absolute;left:10px;top:10px;color:#fff;background:transparent;border:0;font-size:34px;line-height:1;z-index:21}
+.shorts-feed{position:fixed;inset:0;z-index:15;background:#000;overflow-y:auto;scroll-snap-type:y mandatory;overscroll-behavior-y:contain;padding:0;margin:0}
+.short-card{background:#000;margin:0;position:relative;height:100dvh;min-height:100vh;scroll-snap-align:start;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.short-video{width:100%;height:100%;max-height:none;object-fit:cover;background:#000;display:block}
+.short-overlay{position:absolute;inset:0;pointer-events:none;background:linear-gradient(to bottom,rgba(0,0,0,.12) 0%,transparent 35%,transparent 58%,rgba(0,0,0,.72) 100%)}
+.short-info{position:absolute;left:18px;right:92px;bottom:76px;color:#fff;text-shadow:0 1px 3px #000;z-index:3}.short-info .short-title{font-size:17px;font-weight:800;margin-bottom:7px;line-height:22px}.short-info .short-channel{font-size:15px;cursor:pointer;font-weight:700;margin-bottom:9px}.short-duration{display:inline-block;margin-left:8px;font-weight:700;opacity:.95}.short-center-play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:54px;color:#fff;text-shadow:0 2px 8px #000;z-index:4;pointer-events:none;opacity:0;transition:opacity .15s}.short-card.is-paused .short-center-play{opacity:.95}
+.short-channel-row{display:flex;align-items:center;gap:9px;margin-bottom:9px}.short-avatar{width:38px;height:38px;border-radius:50%;object-fit:cover;border:2px solid #fff}.short-subscribe{border:0;border-radius:20px;padding:8px 13px;background:#fff;color:#111;font-weight:800;cursor:pointer}.short-subscribe.subscribed{background:#ffd600}
+.short-actions{position:absolute;right:10px;bottom:104px;display:flex;flex-direction:column;gap:14px;align-items:center;z-index:5}.short-actions button{border:0;background:transparent;color:#fff;text-shadow:0 1px 3px #000;font-size:14px;font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:48px;padding:2px}.short-actions .short-icon{font-size:30px;line-height:32px}.short-actions button.active .short-icon{transform:scale(1.08)}
+body.shorts-mode>header,body.shorts-mode .topbar,body.shorts-mode .app-header{display:none!important}body.shorts-mode{background:#000;overflow:hidden}body.shorts-mode #shortsPage{display:block!important}
+@media(max-width:520px){.short-video{object-fit:cover}.short-info{bottom:78px}.short-actions{right:7px;bottom:108px;gap:12px}}
+
+
+.upload-type-chooser{display:flex;gap:10px;justify-content:center;margin:14px 0 4px;flex-wrap:wrap}.upload-type-btn{border:1px solid #ddd;background:#eee;border-radius:24px;padding:12px 18px;font-weight:800;font-size:15px;cursor:pointer}.upload-type-btn.active{background:#e53935;color:#fff;border-color:#e53935}.upload-help{margin-top:8px;text-align:center;line-height:1.35;opacity:.78}
+
+.channel-page-head{padding:14px 12px 8px;border-bottom:1px solid #eee;background:#fff}
+.channel-cover{height:105px;border-radius:12px;background:linear-gradient(135deg,#eeeeee,#fafafa);margin-bottom:-38px}
+.channel-profile-row{display:flex;align-items:flex-end;gap:12px;padding:0 8px 10px}
+.channel-page-avatar{width:78px;height:78px;border-radius:50%;object-fit:cover;border:4px solid #fff;background:#ddd}
+.channel-page-name{font-size:22px;font-weight:800;margin-bottom:5px}
+.channel-page-sub{color:#666;font-size:13px}
+.channel-page-actions{display:flex;gap:8px;padding:4px 8px 12px}
+.channel-page-actions button{border:0;border-radius:20px;padding:10px 16px;font-weight:700;cursor:pointer}
+.channel-page-actions .active{background:#ffd54f}
+.channel-tabs{display:flex;border-top:1px solid #eee;border-bottom:1px solid #eee;background:#fff}
+.channel-tabs button{flex:1;padding:13px;border:0;background:#fff;font-weight:700}
+.channel-tabs button.active{border-bottom:3px solid #e53935}
+.channel-video-list{padding:10px 12px}
+.channel-video-item{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid #eee;cursor:pointer}
+.channel-video-thumb{width:145px;height:82px;object-fit:cover;border-radius:8px;background:#eee;flex:none}
+.channel-thumb-wrap{position:relative;width:145px;height:82px;flex:none;background:#eee;border-radius:8px;overflow:hidden}.channel-thumb-wrap .duration-badge{right:4px;bottom:4px;font-size:11px}
+.channel-video-info{min-width:0}
+.channel-video-title{font-weight:700;line-height:1.3}
+.channel-click{cursor:pointer}
+.channel-click:active{opacity:.7}
+.online-sub-status{font-size:12px;color:#666;margin-top:3px}.online-sub-status.ok{color:#2e7d32}.subscribe.loading{opacity:.65;pointer-events:none}\n
+<style id="v39-only-css">
+.actions button[data-reaction-type].active,.watch-actions button[data-reaction-type].active{background:#e53935!important;color:#fff!important;border:2px solid #b71c1c!important;font-weight:800}
+.v39-edit-top{display:flex;align-items:center;gap:10px}.v39-edit-top h2{flex:1}.v39-save{border:0;border-radius:20px;background:#111;color:#fff;padding:9px 16px;font-weight:800}
+.v39-banner-wrap{position:relative;margin:0 -15px}.v39-banner{height:160px;background:#ddd center/cover no-repeat}
+.v39-avatar-wrap{position:relative;width:96px;height:96px;margin:-48px 0 14px 18px}.v39-avatar{width:96px;height:96px;border-radius:50%;object-fit:cover;border:4px solid #fff}
+.v39-camera{border:0;border-radius:50%;width:38px;height:38px;background:#fff;box-shadow:0 2px 8px #777;font-size:18px}.v39-banner-camera{position:absolute;right:12px;bottom:12px}.v39-avatar-camera{position:absolute;right:-7px;bottom:-4px}
+.v39-field{display:block;font-size:13px;color:#666;margin:12px 0}.v39-field input,.v39-field textarea{display:block;width:100%;box-sizing:border-box;margin-top:5px;padding:9px 2px;border:0;border-bottom:2px solid #aaa;font-size:16px;background:#fff}
+.v39-setting{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid #eee}
+.v39-channel-avatar-wrap{position:relative;width:78px;height:78px;flex:none}.v39-channel-avatar-wrap .channel-page-avatar{width:78px;height:78px;display:block}.v39-channel-avatar-camera{position:absolute;right:-7px;bottom:-5px}.channel-cover-camera{position:absolute;right:10px;top:10px}
+
+/* V53: clean upload form + YouTube-like metadata */
+.thumbnail-selected-note{display:none;margin:7px 0 10px;padding:8px 10px;border-radius:9px;background:#f1f8e9;color:#33691e;font-size:13px;font-weight:700}
+.thumbnail-selected-note.show{display:block}
+.home-meta{color:#666;font-size:13px;margin-top:4px}
+
+/* V54: YouTube-style duration badge on thumbnails */
+.video-thumb-wrap{position:relative;width:100%;aspect-ratio:16/9;background:#000;overflow:hidden}
+.video-thumb-wrap .video{width:100%;height:100%;aspect-ratio:auto;object-fit:cover}
+.duration-badge{position:absolute;right:7px;bottom:7px;background:rgba(0,0,0,.82);color:#fff;border-radius:4px;padding:3px 5px;font-size:12px;font-weight:700;line-height:1;z-index:3;pointer-events:none}
+.video-thumb-wrap.playing .duration-badge{display:none}
+.upload-video-wrap{position:relative}
+.upload-video-wrap .duration-badge{right:8px;bottom:8px}
+.thumbnail-detail-note{font-size:12px;color:#666;margin-top:5px}
+
+
+/* V72: Reference-style comments bottom sheet. Only comments UI/logic. */
+.comments-sheet{position:fixed;left:0;right:0;bottom:0;height:min(72vh,620px);background:#fff;border-radius:18px 18px 0 0;box-shadow:0 -8px 30px rgba(0,0,0,.22);z-index:120;display:flex;flex-direction:column;transform:translateY(105%);transition:transform .22s ease;overflow:hidden}
+.comments-sheet.open{transform:translateY(0)}
+.comments-sheet-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #eee;font-size:18px;font-weight:700}
+.comments-sheet-close{border:0;background:transparent;font-size:28px;line-height:1;color:#444;padding:2px 6px}
+.comments-sort{padding:9px 16px;border-bottom:1px solid #eee;color:#555;font-size:13px}
+.comments-empty{flex:1;display:flex;align-items:center;justify-content:center;color:#777;font-size:15px}
+.comments-list{flex:1;overflow:auto;padding:8px 14px 12px}
+.comments-row{display:flex;gap:10px;padding:10px 2px}
+.comments-avatar{width:38px;height:38px;border-radius:50%;object-fit:cover;flex:0 0 38px}
+.comments-body{min-width:0;flex:1}
+.comments-name{font-weight:700;font-size:14px}
+.comments-time{font-size:11px;color:#888;margin-left:5px;font-weight:400}
+.comments-text{font-size:14px;line-height:20px;margin-top:3px;white-space:pre-wrap;word-break:break-word}
+.comments-compose{display:flex;align-items:center;gap:8px;padding:10px 12px;border-top:1px solid #eee;background:#fff}
+.comments-compose input{flex:1;border:1px solid #ddd;border-radius:22px;padding:11px 14px;font-size:14px;outline:none}
+.comments-send{width:42px;height:42px;border:0;border-radius:50%;background:#e53935;color:#fff;font-size:18px}
+.comments-emoji{padding:5px 14px 9px;border-top:1px solid #f4f4f4;font-size:20px;letter-spacing:5px;white-space:nowrap;overflow:auto}
+.watch-comment-count{margin:8px 16px 2px;padding:10px 14px;border-radius:14px;background:#f7f7f7;font-size:15px;font-weight:600;cursor:pointer;display:inline-block}
+.comments-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:119;display:none}
+.comments-backdrop.open{display:block}
+@media(max-width:520px){.comments-sheet{height:74vh}}
+
+</style>
+
+
+<style id="index18-stats-css">
+.video-stats{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0;color:#666;font-size:13px}
+.video-stats span{background:#f5f5f5;border-radius:14px;padding:5px 9px}
+.watch-stats{display:flex;flex-wrap:wrap;gap:9px;margin:10px 0 12px}
+.watch-stats span{background:#f4f4f4;border-radius:16px;padding:7px 11px;font-size:14px}
+.channel-stats{display:flex;gap:8px;flex-wrap:wrap;margin:5px 0 10px;color:#666;font-size:13px}
+.channel-stats span{background:#f5f5f5;border-radius:14px;padding:5px 9px}
+
+/* V31 Channel branding + Videos/Shorts/Posts */
+.channel-cover{position:relative;height:150px;border-radius:12px;background:#e9e9e9 center/cover no-repeat;overflow:hidden}
+.channel-cover-edit{position:absolute;right:10px;top:10px;border:0;border-radius:20px;padding:8px 12px;background:rgba(0,0,0,.72);color:#fff;font-weight:700;cursor:pointer}
+.channel-profile-row{position:relative;z-index:2}
+.channel-page-avatar{background:#ddd}
+.channel-edit-box{margin:12px 0;padding:14px;border:1px solid #ddd;border-radius:14px;background:#fafafa}
+.channel-edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.channel-edit-grid input{width:100%;box-sizing:border-box}
+.channel-tabs button{cursor:pointer}
+.channel-posts{padding:12px}.channel-post{border:1px solid #e5e5e5;border-radius:14px;padding:13px;margin-bottom:10px;background:#fff}.channel-post-text{white-space:pre-wrap;line-height:1.45}.channel-post img{max-width:100%;border-radius:10px;margin-top:10px;max-height:360px;object-fit:cover}
+.post-compose{padding:12px;border:1px solid #ddd;border-radius:14px;margin:12px;background:#fafafa}.post-compose textarea{width:100%;min-height:90px;box-sizing:border-box;resize:vertical}.post-compose input[type=file]{margin:8px 0}
+@media(max-width:520px){.channel-edit-grid{grid-template-columns:1fr}}
+</style>
+
+<style id="v45-thumbnail-modal-css">
+.thumbnail-modal-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:99999;align-items:center;justify-content:center;padding:14px;box-sizing:border-box}
+.thumbnail-modal-backdrop.open{display:flex}
+.thumbnail-modal{width:min(96vw,520px);max-height:92vh;overflow:auto;background:#fff;border-radius:18px;padding:14px;box-shadow:0 12px 40px rgba(0,0,0,.35);box-sizing:border-box}
+.thumbnail-modal-head{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:18px;font-weight:800;margin-bottom:10px}
+.thumbnail-modal-close{border:0;background:#eee;border-radius:50%;width:38px;height:38px;font-size:22px}
+.thumbnail-modal-video{width:100%;aspect-ratio:16/9;background:#000;border-radius:12px;object-fit:contain;display:block}
+.thumbnail-modal-preview{width:100%;aspect-ratio:16/9;background:#111;border-radius:10px;object-fit:cover;display:block;margin-top:10px}
+.thumbnail-modal-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.thumbnail-modal-actions button{border:0;border-radius:22px;padding:10px 14px;font-weight:700;background:#eee}
+.thumbnail-modal-actions .primary-thumb{background:#e53935;color:#fff}
+.thumbnail-modal-range{width:100%;margin-top:10px}
+.thumbnail-modal-note{font-size:13px;color:#666;margin-top:7px}
+</style>
+<style id="v47-thumbnail-editor-css">
+.thumbnail-edit-modal{display:none;position:fixed;inset:0;z-index:100000;background:#fff;overflow:auto;}
+.thumbnail-edit-modal.open{display:block;}
+.thumbnail-edit-sheet{min-height:100%;background:#fff;}
+.thumbnail-edit-head{height:64px;display:grid;grid-template-columns:48px 1fr 88px;align-items:center;padding:0 12px;box-sizing:border-box;border-bottom:1px solid #eee;font-size:20px;font-weight:800;}
+.thumbnail-edit-back{border:0;background:transparent;font-size:40px;line-height:1;text-align:left;padding:0;cursor:pointer;}
+.thumbnail-edit-done{border:0;background:#d6d6d6;color:#fff;border-radius:28px;padding:11px 20px;font-size:17px;font-weight:800;justify-self:end;cursor:pointer;}
+.thumbnail-edit-video-wrap{padding:48px 24px 0;box-sizing:border-box;}
+.thumbnail-edit-video{display:block;width:100%;max-height:56vh;aspect-ratio:16/9;object-fit:contain;background:#000;border-radius:2px;}
+.thumbnail-edit-controls{padding:24px 24px 40px;}
+#thumbModalRange{width:100%;margin:0 0 28px;accent-color:#777;}
+.thumbnail-change-btn{width:190px;height:120px;border:0;border-radius:14px;background:#000;color:#fff;font-size:18px;font-weight:700;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;cursor:pointer;}
+.thumbnail-change-icon{font-size:28px;line-height:1;}
+</style>
+<style id="v46-thumbnail-ui-css">
+.upload-video-wrap{position:relative;width:100%;}
+.video-thumbnail-pencil{position:absolute;right:10px;top:10px;width:34px;height:34px;border:0;border-radius:50%;background:#fff;box-shadow:0 3px 12px rgba(0,0,0,.35);font-size:17px;display:flex;align-items:center;justify-content:center;z-index:6;cursor:pointer;}
+.thumbnail-inline-panel{display:none;margin-top:8px;border:1px solid #e4e4e4;border-radius:12px;background:#fff;overflow:hidden;}
+.thumbnail-inline-panel.open{display:block;}
+.thumbnail-inline-head{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-bottom:1px solid #eee;font-size:16px;}
+.thumbnail-inline-head button{border:0;background:#eee;border-radius:50%;width:34px;height:34px;font-size:22px;line-height:1;cursor:pointer;}
+.thumbnail-inline-content{padding:10px;}
+.thumbnail-inline-preview{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:9px;background:#111;}
+.thumbnail-inline-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:9px;}
+.thumbnail-inline-actions button,.thumbnail-inline-apply{border:0;border-radius:20px;padding:9px 13px;font-weight:700;background:#eee;cursor:pointer;}
+.thumbnail-inline-apply{margin-top:9px;background:#111;color:#fff;width:100%;}
+.thumbnail-inline-range{width:100%;margin-top:8px;}
+</style>
+<style id="v44-thumbnail-css">
+.thumbnail-editor{margin-top:12px;border:1px solid #e5e5e5;border-radius:12px;padding:10px;background:#fafafa}
+.thumbnail-preview-wrap{position:relative;width:100%;aspect-ratio:16/9;background:#111;border-radius:10px;overflow:hidden}
+.thumbnail-preview{width:100%;height:100%;object-fit:cover;display:block}
+.thumbnail-pencil{position:absolute;right:10px;bottom:10px;width:42px;height:42px;border:0;border-radius:50%;background:#fff;box-shadow:0 2px 8px #555;font-size:20px;cursor:pointer}
+.thumbnail-tools{display:none;margin-top:10px;gap:8px;flex-wrap:wrap}.thumbnail-tools.open{display:flex}
+.thumbnail-tools button{border:0;border-radius:20px;padding:9px 13px;font-weight:700;background:#eee;cursor:pointer}
+#thumbFrameRange{width:100%;margin:10px 0}.thumb-frame-row{display:none;margin-top:8px}.thumb-frame-row.open{display:block}
+</style>
+
+<style id="v58-owner-menu-css">
+.v58-video-more-wrap{position:relative;flex:0 0 auto;margin-left:auto;align-self:flex-start;padding-top:2px}
+.v58-more-btn{width:38px;height:38px;border:0;background:transparent;border-radius:50%;font-size:25px;line-height:38px;cursor:pointer;color:#222}
+.v58-more-btn:active{background:#eee}
+.v58-actions-menu{position:absolute;right:0;top:42px;min-width:245px;background:#fff;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,.25);border:1px solid #e5e5e5;z-index:1000;display:none;overflow:hidden}
+.v58-actions-menu.open{display:block}
+.v58-actions-menu button{display:flex;align-items:center;gap:12px;width:100%;padding:13px 15px;border:0;background:#fff;text-align:left;font-size:15px;cursor:pointer;color:#111}
+.v58-actions-menu button:hover{background:#f5f5f5}
+.v58-actions-menu .danger{color:#d32f2f}
+.v58-modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.52);z-index:100000;display:none;align-items:center;justify-content:center;padding:16px}
+.v58-modal-backdrop.open{display:flex}
+.v58-modal{width:min(96vw,520px);max-height:90vh;overflow:auto;background:#fff;border-radius:16px;padding:18px;box-shadow:0 12px 50px rgba(0,0,0,.35)}
+.v58-modal h3{margin:0 0 14px;font-size:20px}.v58-modal label{display:block;font-size:13px;font-weight:700;margin-top:10px}.v58-modal input,.v58-modal textarea,.v58-modal select{width:100%;padding:10px;border:1px solid #ccc;border-radius:9px;margin-top:5px;box-sizing:border-box}.v58-modal textarea{min-height:100px;resize:vertical}
+.v58-modal-actions{display:flex;gap:9px;margin-top:16px}.v58-modal-actions button{flex:1;padding:11px;border:0;border-radius:10px;font-weight:700;cursor:pointer}.v58-cancel{background:#eee}.v58-primary{background:#e53935;color:#fff}.v58-danger{background:#d32f2f;color:#fff}
+.v58-stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.v58-stat{background:#f6f6f6;border-radius:10px;padding:12px}.v58-stat b{display:block;font-size:19px}.v58-note{font-size:12px;color:#777;margin-top:8px;line-height:1.45}
+@media(max-width:520px){.v58-actions-menu{min-width:230px}.v58-more-btn{width:34px}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="top">
+    <button class="icon" onclick="show('home')">☰</button>
+    <div class="logo">Vidora</div>
+    <input id="search" class="search" placeholder="वीडियो खोजें..." oninput="searchVideos()">
+    <button class="icon" onclick="show('profile')">👤</button>
+  </div>
+</header>
+
+<main class="page">
+
+<section id="home">
+  <div class="stories">
+    <div class="story"><img src="https://i.pravatar.cc/100?img=1"><div>आपकी Story</div></div>
+    <div class="story"><img src="https://i.pravatar.cc/100?img=2"><div>Music</div></div>
+    <div class="story"><img src="https://i.pravatar.cc/100?img=3"><div>Cooking</div></div>
+    <div class="story"><img src="https://i.pravatar.cc/100?img=4"><div>Travel</div></div>
+    <div class="story"><img src="https://i.pravatar.cc/100?img=5"><div>Shorts</div></div>
+  </div>
+
+  <div id="videos"></div>
+</section>
+
+<section id="watch" class="hidden">
+  <div id="watchContent"></div>
+</section>
+
+<section id="channelPage" class="hidden">
+  <div id="channelPageContent"></div>
+</section>
+
+<section id="shortsPage" class="hidden">
+  <div class="shorts-head"><button class="back-btn" onclick="history.back()">‹</button><h2>⚡ Shorts</h2></div>
+  <div id="shortsContent" class="shorts-feed"></div>
+</section>
+
+<section id="upload" class="hidden upload-shell">
+  <div class="upload-head"><button onclick="history.back()">‹</button><h2>वीडियो अपलोड करें</h2></div>
+  <div class="upload-body">
+    <div id="uploadStepPick" class="upload-step active">
+      <div class="upload-pick">
+        <div class="big">🎥</div>
+        <h3>क्या अपलोड करना है?</h3>
+        <p class="small">पहले प्रकार चुनें, फिर अपने फोन से वीडियो चुनें।</p>
+        <div class="upload-type-chooser">
+          <button type="button" class="upload-type-btn active" id="uploadTypeVideoBtn" onclick="chooseUploadType('video')">🎬 वीडियो</button>
+          <button type="button" class="upload-type-btn" id="uploadTypeShortBtn" onclick="chooseUploadType('short')">⚡ शॉर्ट वीडियो</button>
+        </div>
+        <div id="uploadTypeHint" class="small" style="margin:10px 0 12px">सामान्य वीडियो के रूप में अपलोड होगा।</div>
+        <button type="button" id="chooseVideoFileBtn" onclick="document.getElementById('videoFile').click()">वीडियो चुनें</button>
+        <input id="videoFile" type="file" accept="video/*" style="position:absolute;left:-10000px;top:-10000px;width:1px;height:1px;opacity:0" onchange="onVideoSelected()">
+      </div>
+    </div>
+
+    <div id="uploadStepDetails" class="upload-step">
+      <div class="upload-video-wrap">
+        <video id="uploadPreview" class="upload-preview" controls playsinline muted></video><img id="uploadThumbOverlay" class="upload-thumb-overlay" alt="Selected thumbnail"><img id="uploadSelectedThumb" class="upload-selected-thumb" alt="Selected thumbnail preview"><span id="uploadDurationBadge" class="duration-badge">--:--</span>
+        <button type="button" class="video-thumbnail-pencil" onclick="toggleThumbnailTools()" aria-label="Edit thumbnail">✏️</button>
+      </div>
+
+      <div id="thumbnailEditModal" class="thumbnail-edit-modal" aria-hidden="true">
+        <div class="thumbnail-edit-sheet">
+          <div class="thumbnail-edit-head">
+            <button type="button" class="thumbnail-edit-back" onclick="closeThumbnailModal()" aria-label="Back">‹</button>
+            <b>Edit thumbnail</b>
+            <button id="thumbnailDoneBtn" type="button" class="thumbnail-edit-done" onclick="applyThumbnailFromModal()">Done</button>
+          </div>
+          <div class="thumbnail-edit-video-wrap">
+            <video id="thumbnailModalVideo" class="thumbnail-edit-video" playsinline muted preload="metadata"></video>
+          </div>
+          <div class="thumbnail-edit-controls">
+            <input id="thumbModalRange" type="range" min="0" max="0" step="0.1" value="0" oninput="previewModalThumbnailFrame()">
+            <button type="button" class="thumbnail-change-btn" onclick="document.getElementById('thumbnailFile').click()">
+              <span class="thumbnail-change-icon">▧＋</span><span>Change</span>
+            </button>
+          </div>
+          <input id="thumbnailFile" type="file" accept="image/*" style="position:absolute;left:-10000px;top:-10000px;width:1px;height:1px;opacity:0" onchange="onThumbnailFileSelected()">
+        </div>
+      </div>
+
+      <div id="uploadFileName" class="upload-file-name"></div>
+      <div id="thumbnailSelectedNote" class="thumbnail-selected-note"></div>
+
+      <div class="upload-field">
+        <label>Title</label>
+        <input id="videoTitle" maxlength="100" placeholder="वीडियो का Title">
+      </div>
+
+      <div class="upload-field">
+        <label>Description</label>
+        <textarea id="videoDescription" rows="4" maxlength="5000" placeholder="वीडियो का Description"></textarea>
+      </div>
+
+      <!-- YouTube-style publishing details: restored without changing Title/Description -->
+      <div class="detail-row" onclick="cycleVisibility()"><div class="detail-icon">🌐</div><div class="detail-main"><b>Visibility</b><span id="visibilityValue">Public</span></div><div class="chev">›</div></div>
+      <div class="detail-row" onclick="cycleAudience()"><div class="detail-icon">👥</div><div class="detail-main"><b>Select audience</b><span id="audienceValue">Not made for kids</span></div><div class="chev">›</div></div>
+      <button class="show-more" onclick="toggleMoreOptions()">Show more <span id="moreArrow">⌄</span></button>
+      <div id="moreOptions" class="more-options">
+        <div class="upload-field"><label>Tags</label><input id="videoTags" maxlength="500" placeholder="Tags, comma से अलग करें"></div>
+        <div class="upload-field"><label>Location</label><input id="videoLocation" placeholder="Location (optional)"></div>
+        <div class="upload-field"><label>Add to playlist</label><input id="videoPlaylist" placeholder="Playlist name (optional)"></div>
+        <div class="detail-row" onclick="togglePaidPromotion()"><div class="detail-icon">💼</div><div class="detail-main"><b>Paid promotion and brands</b><span id="paidPromotionValue">No</span></div><div class="chev">›</div></div>
+      </div>
+
+      <div class="upload-actions">
+        <div id="uploadProgress" class="upload-progress">
+          <div class="progress-bg"><div id="progressFill" class="progress-fill"></div></div>
+          <div id="progressText" class="progress-text">0%</div>
+        </div>
+        <button id="publishUploadBtn" class="upload-btn" onclick="publishVideo()">Upload</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="profile" class="panel hidden">
+  <div class="profileHead">
+    <img class="bigAvatar" id="profileAvatar" src="https://i.pravatar.cc/160?img=12">
+    <div><h2 id="profileName">मेरा Profile</h2><div class="small">आपका चैनल</div></div>
+  </div>
+  <input id="newName" placeholder="अपना नाम">
+  <input id="newChannel" placeholder="चैनल का नाम">
+  <div id="channelStatus" class="channel-lock">पहली बार अपना चैनल बनाइए। चैनल एक बार बन जाने के बाद हर Upload में वही चैनल अपने-आप लगेगा।</div>
+  <button id="saveChannelBtn" class="primary" onclick="saveProfile()">Profile / Channel Save करें</button>
+  <div id="channelBranding" class="channel-edit-box hidden">
+    <h3 style="margin-top:0">🎨 Channel सजाएं</h3>
+    <div class="channel-edit-grid">
+      <label>Channel Logo / Profile Photo<br><input id="channelAvatarFile" type="file" accept="image/*"></label>
+      <label>Channel Banner / Cover Photo<br><input id="channelBannerFile" type="file" accept="image/*"></label>
+    </div>
+    <button class="primary" onclick="saveChannelBranding()">Logo और Banner Save करें</button>
+    <div class="small">Banner ऊपर पीछे दिखाई देगा और Logo चैनल के नाम के पास दिखाई देगा।</div>
+  </div>
+  <button id="editBrandingBtn" class="primary hidden" onclick="toggleBranding()">🎨 Logo / Banner बदलें</button>
+  <hr>
+  <button class="primary" onclick="openGallery()">➕ वीडियो Upload करें</button>
+  <button class="primary" onclick="openShorts()">⚡ Shorts खोलें</button>
+</section>
+
+
+<section id="editChannel" class="panel hidden">
+  <div class="v39-edit-top">
+    <button class="back-btn" onclick="history.back()">‹</button>
+    <h2>Edit channel</h2>
+    <button class="v39-save" onclick="saveSeparateChannelEdit()">Save</button>
+  </div>
+  <div class="v39-banner-wrap">
+    <div id="editBannerPreview" class="v39-banner"></div>
+    <button class="v39-camera v39-banner-camera" onclick="document.getElementById('editChannelBannerFile').click()">📷</button>
+  </div>
+  <div class="v39-avatar-wrap">
+    <img id="editAvatarPreview" class="v39-avatar" src="https://i.pravatar.cc/160?img=12">
+    <button class="v39-camera v39-avatar-camera" onclick="document.getElementById('editChannelAvatarFile').click()">📷</button>
+  </div>
+  <input id="editChannelAvatarFile" type="file" accept="image/*" style="display:none">
+  <input id="editChannelBannerFile" type="file" accept="image/*" style="display:none">
+  <label class="v39-field">Name<input id="editChannelName" maxlength="60"></label>
+  <label class="v39-field">Handle<input id="editChannelHandle" maxlength="60"></label>
+  <label class="v39-field">Channel URL<input id="editChannelUrl" readonly></label>
+  <label class="v39-field">Description<textarea id="editChannelDescription" rows="5" maxlength="1000"></textarea></label>
+  <div class="v39-setting"><b>My community</b><input id="editCommunity" type="checkbox"></div>
+  <div class="v39-setting"><b>Privacy</b><input id="editPrivacy" type="checkbox"></div>
+  <button class="primary" onclick="saveSeparateChannelEdit()">Save Channel</button>
+</section>
+
+<section id="searchPage" class="panel hidden">
+  <h2>Search Results</h2><div id="results"></div>
+</section>
+
+</main>
+
+
+
+<!-- V42 YouTube-style Mini Player -->
+<div id="miniPlayer" class="mini-player" aria-label="Mini video player" onclick="expandMiniPlayer()">
+  <div id="miniVideoWrap" class="mini-video-wrap" onclick="event.stopPropagation();expandMiniPlayer()">
+    <button class="mini-close" type="button" onclick="event.stopPropagation();closeMiniPlayer()">×</button>
+    <div id="miniVideoSlot"></div>
+  </div>
+  <div class="mini-info">
+    <div id="miniTitle" class="mini-title"></div>
+    <div class="mini-hint">वीडियो चल रहा है • कहीं भी टैप करके बड़ा करें</div>
+  </div>
+</div>
+<nav class="bottom">
+  <button onclick="show('home')"><span>⌂</span>Home</button>
+  <button onclick="openShorts()"><span>⚡</span>Shorts</button>
+  <button onclick="focusSearch()"><span>⌕</span>Search</button>
+  <button onclick="openGallery()"><span>＋</span>Upload</button>
+  <button onclick="openMyChannelOrSetup()"><span>◉</span>Profile</button>
+</nav>
+
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://upload-widget.cloudinary.com/latest/global/all.js" type="text/javascript"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyAlzQTykiBtEsE2jH1RqicxjwuXt-UHoOw",
+  authDomain: "vidora-2e8c5.firebaseapp.com",
+  projectId: "vidora-2e8c5",
+  storageBucket: "vidora-2e8c5.firebasestorage.app",
+  messagingSenderId: "823696459853",
+  appId: "1:823696459853:web:02a343bc8d2d59bbddf404",
+  measurementId: "G-G173HVDS9S"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const auth = firebase.auth();
+let firebaseReady = false;
+let remoteVideos = [];
+
+function startFirebase(){
+  auth.signInAnonymously().then(()=>{
+    firebaseReady = true;
+    loadCloudProfile();
+    db.collection('videos').orderBy('createdAt','desc').onSnapshot(snapshot=>{
+      remoteVideos = snapshot.docs.map(doc=>({id:doc.id, ...doc.data()}));
+      render();
+      loadOnlineReactions();
+    }, err=>{
+      console.warn('Firestore read error:', err);
+      render();
+    });
+  }).catch(err=>{
+    console.warn('Firebase anonymous login not enabled:', err);
+    render();
+  });
+}
+
+const defaultVideos=[
+ {id:1,title:"मेरी पहली वीडियो",channel:"Vidora Creator",src:"https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4",likes:0,dislikes:0, views: 0,comments:[]},
+ {id:2,title:"एक शानदार वीडियो",channel:"My Channel",src:"https://www.w3schools.com/html/mov_bbb.mp4",likes:0,dislikes:0, views: 0,comments:[]}
+];
+
+let videos=JSON.parse(localStorage.getItem("vidoraVideos")||"null")||defaultVideos;
+let reactions=JSON.parse(localStorage.getItem("vidoraReactions")||"{}");
+function allVideos(){
+  const remoteIds = new Set(remoteVideos.map(v=>String(v.id)));
+  const localOnly = videos.filter(v=>!remoteIds.has(String(v.id)) && !v.videoUrl);
+  return remoteVideos.length ? remoteVideos.concat(localOnly) : videos;
+}
+let profile=JSON.parse(localStorage.getItem("vidoraProfile")||"null")||{name:"मेरा Profile",channel:""};
+let channelCreated=localStorage.getItem("vidoraChannelCreated")==="1";
+if(!channelCreated && profile.channel && profile.channel!=="मेरा चैनल") channelCreated=true;
+function persistProfileLocal(){ localStorage.setItem("vidoraProfile",JSON.stringify(profile)); localStorage.setItem("vidoraChannelCreated",channelCreated?"1":"0"); }
+
+function save(){localStorage.setItem("vidoraVideos",JSON.stringify(videos));localStorage.setItem("vidoraReactions",JSON.stringify(reactions));}
+
+function render(){
+ const box=document.getElementById('videos'); box.innerHTML='';
+ allVideos().forEach(v=>{
+  const r=reactions[String(v.id)]||'';
+  const el=document.createElement('article');el.className='card';
+  el.innerHTML=`
+   <div class="video-thumb-wrap" data-video-wrap="${esc(String(v.id))}" onclick='openWatch(${JSON.stringify(String(v.id))},event)'><img class="thumbnail-image" alt="" src="${esc(getThumbnailUrl(v)||'')}"><span class="duration-badge">${formatVideoDuration(v)}</span></div>
+   <div class="info"><div class="title">${esc(v.title)}</div><div class="meta channel-click" onclick='event.stopPropagation();openChannel(${JSON.stringify(String(v.channel))})'>${esc(v.channel)} • ${v.likes} Likes</div><div class="home-meta">${formatVideoDuration(v)} • ${formatTimeAgo(v.createdAt)}</div>${addVideoStats(v)}</div>
+   <div class="actions">
+    <button class="${r==='like'?'active':''}" data-reaction-id="${esc(String(v.id))}" data-reaction-type="like" onclick='like(${JSON.stringify(String(v.id))})'>👍 ${v.likes}</button>
+    <button class="${r==='dislike'?'active':''}" data-reaction-id="${esc(String(v.id))}" data-reaction-type="dislike" onclick='dislike(${JSON.stringify(String(v.id))})'>👎 ${v.dislikes}</button>
+    <button onclick='shareVideo(${JSON.stringify(String(v.id))})'>↗ Share</button>
+    <button onclick='openWatch(${JSON.stringify(String(v.id))})'>▶ Watch</button>
+   </div>`;
+  box.appendChild(el);
+ });
+ setupSingleVideoPlayback();
+}
+
+function setupSingleVideoPlayback(){
+ document.querySelectorAll('#videos .video').forEach(v=>{
+   v.addEventListener('play',()=>{
+     document.querySelectorAll('#videos .video').forEach(o=>{if(o!==v)o.pause();});
+     const wrap=v.closest('.video-thumb-wrap'); if(wrap)wrap.classList.add('playing');
+     const w=document.getElementById('watchVideo'); if(w && !w.paused) w.pause();
+   });
+   v.addEventListener('pause',()=>{const wrap=v.closest('.video-thumb-wrap'); if(wrap)wrap.classList.remove('playing');});
+ });
+}
+
+function openWatch(id,event){
+ if(event){event.preventDefault();event.stopPropagation();}
+ closeMiniPlayer(true);
+ document.querySelectorAll('video').forEach(el=>{ try{el.pause()}catch(e){} });
+ const v=allVideos().find(x=>String(x.id)===String(id)); if(!v)return;
+ show('watch');
+ renderWatch(v);
+ window.scrollTo({top:0,behavior:'smooth'});
+ setTimeout(()=>{
+   const w=document.getElementById('watchVideo');
+   if(w){ w.currentTime=0; w.play().catch(()=>{}); }
+ },80);
+}
+
+let miniVideoId='';
+let miniVideoTime=0;
+let miniWasPlaying=false;
+
+function minimizeCurrentWatch(){
+ const w=document.getElementById('watchVideo');
+ if(!w || !currentWatchVideoId) return;
+ try{ miniVideoTime=Number(w.currentTime||0); }catch(e){ miniVideoTime=0; }
+ miniWasPlaying=!w.paused && !w.ended;
+ miniVideoId=String(currentWatchVideoId);
+ const v=allVideos().find(x=>String(x.id)===miniVideoId);
+ const slot=document.getElementById('miniVideoSlot');
+ const mini=document.getElementById('miniPlayer');
+ if(!slot || !mini || !v)return;
+ // Move the SAME video element so playback position is preserved.
+ slot.innerHTML='';
+ slot.appendChild(w);
+ w.className='mini-video';
+ w.controls=true;
+ w.style.width='100%';
+ w.style.height='100%';
+ w.style.aspectRatio='auto';
+ w.style.position='static';
+ document.getElementById('miniTitle').textContent=v.title||'Vidora Video';
+ mini.classList.add('active');
+ if(miniWasPlaying) w.play().catch(()=>{});
+}
+
+function expandMiniPlayer(){
+ // Capture the mini player's CURRENT state at the exact moment it is tapped.
+ // This preserves the latest playback position and play/pause state.
+ const id=miniVideoId;
+ const miniEl=document.querySelector('#miniVideoSlot video');
+ let t=miniVideoTime;
+ let playing=miniWasPlaying;
+ if(miniEl){
+   try{ t=Number(miniEl.currentTime||0); }catch(e){}
+   try{ playing=!miniEl.paused && !miniEl.ended; }catch(e){}
+ }
+ if(!id)return;
+ const v=allVideos().find(x=>String(x.id)===id);
+ closeMiniPlayer(true);
+ if(!v)return;
+ show('watch');
+ renderWatch(v);
+ setTimeout(()=>{
+   const w=document.getElementById('watchVideo');
+   if(!w)return;
+   try{w.currentTime=t||0}catch(e){}
+   if(playing)w.play().catch(()=>{});
+ },80);
+}
+
+function closeMiniPlayer(silent=false){
+ const mini=document.getElementById('miniPlayer');
+ const slot=document.getElementById('miniVideoSlot');
+ const w=slot?.querySelector('video');
+ if(w){try{w.pause()}catch(e){}; try{w.remove()}catch(e){}}
+ if(slot)slot.innerHTML='';
+ if(mini)mini.classList.remove('active');
+ miniVideoId=''; miniVideoTime=0; miniWasPlaying=false;
+}
+
+function setupWatchMiniSwipe(){
+ const watch=document.getElementById('watch');
+ if(!watch || watch.__miniSwipeBound)return;
+ watch.__miniSwipeBound=true;
+ let startY=0,startX=0;
+ watch.addEventListener('touchstart',e=>{
+   const t=e.touches[0]; if(!t)return;
+   startY=t.clientY; startX=t.clientX;
+ },{passive:true});
+ watch.addEventListener('touchend',e=>{
+   const t=e.changedTouches[0]; if(!t)return;
+   const dy=t.clientY-startY, dx=t.clientX-startX;
+   // YouTube-style downward swipe on the watch screen minimizes the video.
+   if(dy>70 && Math.abs(dy)>Math.abs(dx)*1.25 && window.__vidoraPage==='watch'){
+     minimizeCurrentWatch();
+     show('home');
+   }
+ },{passive:true});
+}
+setupWatchMiniSwipe();
+
+
+function formatCount(n){
+  n = Number(n || 0);
+  if(n >= 1000000) return (n/1000000).toFixed(n % 1000000 ? 1 : 0) + 'M';
+  if(n >= 1000) return (n/1000).toFixed(n % 1000 ? 1 : 0) + 'K';
+  return String(n);
+}
+
+let onlineSubscriberCounts={};
+let onlineSubscriptionState={};
+function subscriptionDocId(uid,channel){
+  return String(uid||'guest')+'__'+encodeURIComponent(String(channel||''));
+}
+function getSubscribers(channel){
+  const key=String(channel||'');
+  if(Object.prototype.hasOwnProperty.call(onlineSubscriberCounts,key)) return Number(onlineSubscriberCounts[key]||0);
+  return Number(localStorage.getItem('subs_count_' + key) || 0);
+}
+async function refreshOnlineSubscription(channel){
+  channel=String(channel||'').trim();
+  if(!firebaseReady || !auth.currentUser || !channel) return;
+  try{
+    const q=await db.collection('subscriptions').where('channel','==',channel).get();
+    onlineSubscriberCounts[channel]=q.size;
+    const mine=await db.collection('subscriptions').doc(subscriptionDocId(auth.currentUser.uid,channel)).get();
+    onlineSubscriptionState[channel]=mine.exists;
+    localStorage.setItem('subs_count_'+channel,String(q.size));
+    localStorage.setItem('sub_'+channel,mine.exists?'1':'');
+    updateSubscriptionUIs(channel);
+  }catch(e){console.warn('Online subscription load failed:',e);}
+}
+function updateSubscriptionUIs(channel){
+  const subscribed=onlineSubscriptionState[channel]===true || localStorage.getItem('sub_'+channel)==='1';
+  const count=getSubscribers(channel);
+  document.querySelectorAll('[data-sub-channel]').forEach(el=>{
+    if(el.getAttribute('data-sub-channel')!==channel)return;
+    if(el.matches('.subscribe')){el.classList.toggle('subscribed',subscribed);el.classList.remove('loading');el.textContent=subscribed?'Subscribed':'Subscribe';}
+    if(el.classList.contains('channel-count'))el.textContent='👥 '+formatCount(count)+' subscribers';
+  });
+}
+async function ensureOnlineSubscription(channel){
+  if(!firebaseReady || !auth.currentUser) throw new Error('Firebase login तैयार नहीं है।');
+  const uid=auth.currentUser.uid;
+  const ref=db.collection('subscriptions').doc(subscriptionDocId(uid,channel));
+  const snap=await ref.get();
+  return {ref,snap};
+}
+
+
+let viewTimer = null;
+let viewTimerVideoId = '';
+
+async function addView(id){
+  const key = String(id);
+  const seenKey = 'viewed_' + key;
+
+  // View is counted only after 10 seconds of continuous playback.
+  if(sessionStorage.getItem(seenKey)) return;
+
+  const remote = remoteVideos.find(x => String(x.id) === key);
+
+  // Online video: save the view in Firestore so everyone sees the same count.
+  if(remote && firebaseReady){
+    try{
+      await db.collection('videos').doc(key).update({
+        views: firebase.firestore.FieldValue.increment(1)
+      });
+      remote.views = Number(remote.views || 0) + 1;
+      sessionStorage.setItem(seenKey, '1');
+      updateViewUIs(key, remote.views);
+      return;
+    }catch(e){
+      console.warn('Online view count failed:', e);
+      return;
+    }
+  }
+
+  // Local/demo video fallback.
+  const v = videos.find(x => String(x.id) === key);
+  if(!v){ shortViewInFlight.delete(key); return; }
+  v.views = Number(v.views || 0) + 1;
+  save();
+  sessionStorage.setItem(seenKey, '1');
+  updateViewUIs(key, v.views);
+}
+
+function updateViewUIs(id, views){
+  const count = formatCount(views || 0);
+  const watch = document.getElementById('watchContent');
+  const stats = watch?.querySelector('.watch-stats');
+  if(stats){
+    const first = stats.querySelector('span');
+    if(first) first.textContent = '👁️ ' + count + ' views';
+  }
+  document.querySelectorAll('#videos .card').forEach(card=>{
+    const video=card.querySelector('.video');
+    if(!video)return;
+    const v=allVideos().find(x=>String(x.id)===String(id) && x.src===video.getAttribute('src'));
+    if(!v)return;
+    const stat=card.querySelector('.video-stats span');
+    if(stat)stat.textContent='👁️ ' + count + ' views';
+  });
+  document.querySelectorAll('.related-item').forEach(card=>{
+    if(card.getAttribute('data-video-id')!==String(id))return;
+    const stat=card.querySelector('.video-stats span');
+    if(stat)stat.textContent='👁️ ' + count + ' views';
+  });
+}
+
+function getCreatedMillis(value){
+  if(!value)return 0;
+  try{
+    if(typeof value.toMillis==='function')return value.toMillis();
+    if(typeof value.toDate==='function')return value.toDate().getTime();
+    if(value.seconds!=null)return Number(value.seconds)*1000;
+    const n=Number(value);
+    if(Number.isFinite(n)&&n>0)return n;
+    const t=Date.parse(value);
+    return Number.isFinite(t)?t:0;
+  }catch(e){return 0;}
+}
+function formatTimeAgo(value){
+  const ms=getCreatedMillis(value);
+  if(!ms)return 'अभी';
+  let sec=Math.max(0,Math.floor((Date.now()-ms)/1000));
+  if(sec<60)return 'अभी';
+  const min=Math.floor(sec/60);
+  if(min<60)return min+' मिनट पहले';
+  const hr=Math.floor(min/60);
+  if(hr<24)return hr+' घंटे पहले';
+  const day=Math.floor(hr/24);
+  if(day<30)return day+' दिन पहले';
+  const month=Math.floor(day/30);
+  if(month<12)return month+' महीने पहले';
+  return Math.floor(month/12)+' साल पहले';
+}
+function formatVideoDuration(v){
+  const d=Number(v?.duration||0);
+  return d>0?formatTime(d):'--:--';
+}
+
+function getThumbnailUrl(v){
+  if(v?.thumbnailUrl) return v.thumbnailUrl;
+  if(v?.publicId){
+    const pid=String(v.publicId).split('/').map(encodeURIComponent).join('/');
+    return 'https://res.cloudinary.com/zp7wpukk/video/upload/so_1,w_640,h_360,c_fill,q_auto,f_jpg/'+pid+'.jpg';
+  }
+  return '';
+}
+function addVideoStats(v){
+  return '<div class="video-stats">' +
+    '<span>👁️ ' + formatCount(v.views || 0) + ' views</span>' +
+    '<span>👍 ' + formatCount(v.likes || 0) + '</span>' +
+    '<span>👎 ' + formatCount(v.dislikes || 0) + '</span>' +
+    '</div>';
+}
+
+let currentWatchVideoId = '';
+
+function renderWatch(v){
+  currentWatchVideoId = String(v.id);
+ const r=reactions[String(v.id)]||'';
+ const sub=(onlineSubscriptionState[String(v.channel)]===true) || localStorage.getItem('sub_'+v.channel)==='1';
+ const note=localStorage.getItem('notif_'+v.channel)||'none';
+ document.getElementById('watchContent').innerHTML=`
+  <div class="watch-card">
+   <video id="watchVideo" class="watch-video" data-video-id="${esc(String(v.id))}" controls playsinline preload="metadata" ${getThumbnailUrl(v)?`poster="${esc(getThumbnailUrl(v))}"`:""} src="${esc(v.src||v.videoUrl||'')}"></video>
+   <div class="watch-stats"><span>👁️ ${formatCount(v.views || 0)} views</span><span>👍 ${formatCount(v.likes || 0)} likes</span><span>👎 ${formatCount(v.dislikes || 0)} dislikes</span></div><div class="watch-comment-count" id="watch-comment-count-${esc(String(v.id))}" onclick='toggleComments(${JSON.stringify(String(v.id))})'>💬 ${commentCountFor(v)} comments</div><div class="watch-info"><div class="watch-title">${esc(v.title)}</div><div class="watch-meta">${esc(v.channel)} • ${formatVideoDuration(v)} • ${formatTimeAgo(v.createdAt)} • ${v.likes} Likes • ${v.dislikes} Dislikes</div></div>
+   <div class="watch-actions">
+    <button class="${r==='like'?'active':''}" data-reaction-id="${esc(String(v.id))}" data-reaction-type="like" onclick='likeFromWatch(${JSON.stringify(String(v.id))})'>👍 ${v.likes}</button>
+    <button class="${r==='dislike'?'active':''}" data-reaction-id="${esc(String(v.id))}" data-reaction-type="dislike" onclick='dislikeFromWatch(${JSON.stringify(String(v.id))})'>👎 ${v.dislikes}</button>
+    <button onclick='shareVideo(${JSON.stringify(String(v.id))})'>↗ Share</button>
+    <button onclick='toggleComments(${JSON.stringify(String(v.id))})'>💬 Comments (<span id="comment-count-${v.id}">${Array.isArray(v.comments)?v.comments.length:Number(v.commentsCount||0)}</span>)</button>
+   </div>
+   <div class="watch-channel">
+    <img class="avatar channel-click" onclick='openChannel(${JSON.stringify(String(v.channel))})' src="https://i.pravatar.cc/80?u=${encodeURIComponent(v.channel)}">
+    <div class="channel-click" onclick='openChannel(${JSON.stringify(String(v.channel))})'><b>${esc(v.channel)}</b><div class="small">Channel</div><div class="channel-stats"><span class="channel-count" data-sub-channel="${esc(String(v.channel))}">👥 ${formatCount(getSubscribers(v.channel))} subscribers</span></div></div>
+    <button data-sub-channel="${esc(String(v.channel))}" class="subscribe ${sub?'subscribed':''}" onclick='subscribeFromWatch(${JSON.stringify(String(v.id))})'>${sub?'Subscribed':'Subscribe'}</button>
+    ${sub?`<button class="bell-btn" onclick='openNotifications(${JSON.stringify(String(v.id))})'>🔔</button>`:''}
+   </div>
+   <div class="related-title">अगले वीडियो</div>
+   <div class="related">${allVideos().filter(x=>String(x.id)!==String(v.id)).map(x=>`
+   <article class="card related-item" role="button" tabindex="0" data-video-id="${esc(String(x.id))}">
+    <div class="video-thumb-wrap related-preview" data-video-wrap="${esc(String(x.id))}"><img class="thumbnail-image" alt="" src="${esc(getThumbnailUrl(x)||'')}"><span class="duration-badge">${formatVideoDuration(x)}</span></div>
+    <div class="info"><div class="title">${esc(x.title)}</div><div class="meta">${esc(x.channel)} • ${x.likes} Likes</div>${addVideoStats(x)}</div>
+    <button class="watch-related" type="button" onclick="event.stopPropagation();openWatch('${esc(String(x.id))}',event)">▶ यह वीडियो चलाएँ</button>
+   </article>`).join('')}</div>
+  </div>`;
+ setupWatchPlayback();
+}
+
+function setupWatchPlayback(){
+ const w=document.getElementById('watchVideo');
+ if(w){
+   w.addEventListener('play',()=>{
+     document.querySelectorAll('#videos .video, .related .video').forEach(v=>{if(v!==w)v.pause();});
+
+     const id = w.getAttribute('data-video-id') || currentWatchVideoId;
+     const seenKey = 'viewed_' + String(id);
+
+     // Start the 10-second continuous-play timer.
+     clearTimeout(viewTimer);
+     viewTimer = null;
+     viewTimerVideoId = String(id);
+
+     if(!sessionStorage.getItem(seenKey)){
+       viewTimer = setTimeout(()=>{
+         if(!w.paused && !w.ended && viewTimerVideoId === String(id)){
+           addView(id);
+         }
+         viewTimer = null;
+       },10000);
+     }
+   });
+
+   w.addEventListener('pause',()=>{
+     // If playback stops before 10 seconds, the view is not counted.
+     clearTimeout(viewTimer);
+     viewTimer = null;
+   });
+
+   w.addEventListener('ended',()=>{
+     clearTimeout(viewTimer);
+     viewTimer = null;
+   });
+ }
+
+ // Related list: हर वीडियो/कार्ड पर क्लिक करने से वही वीडियो मुख्य player में आए।
+ const related=document.querySelector('.related');
+ if(related){
+   related.addEventListener('click',(e)=>{
+     const card=e.target.closest('.related-item');
+     if(!card)return;
+     const id=card.getAttribute('data-video-id');
+     if(id) openWatch(id,e);
+   });
+   related.addEventListener('keydown',(e)=>{
+     if(e.key!=='Enter' && e.key!==' ')return;
+     const card=e.target.closest('.related-item');
+     if(!card)return;
+     e.preventDefault();
+     const id=card.getAttribute('data-video-id');
+     if(id) openWatch(id,e);
+   });
+ }
+}
+
+function updateWatchControls(id){
+ const v=allVideos().find(x=>String(x.id)===String(id));
+ if(!v)return;
+ const key=String(id), r=reactions[key]||'';
+ const watch=document.getElementById('watchContent');
+ const likeBtn=watch?.querySelector('.watch-actions button:nth-child(1)');
+ const dislikeBtn=watch?.querySelector('.watch-actions button:nth-child(2)');
+ if(likeBtn){likeBtn.className=r==='like'?'active':'';likeBtn.textContent='👍 '+(v.likes||0);}
+ if(dislikeBtn){dislikeBtn.className=r==='dislike'?'active':'';dislikeBtn.textContent='👎 '+(v.dislikes||0);}
+ const meta=watch?.querySelector('.watch-meta');
+ if(meta)meta.textContent=v.channel+' • '+(v.likes||0)+' Likes • '+(v.dislikes||0)+' Dislikes';
+ const stats=watch?.querySelector('.watch-stats');
+ if(stats)stats.innerHTML='<span>👁️ '+formatCount(v.views||0)+' views</span><span>👍 '+formatCount(v.likes||0)+' likes</span><span>👎 '+formatCount(v.dislikes||0)+' dislikes</span>';
+}
+
+function likeFromWatch(id){
+ const v=allVideos().find(x=>String(x.id)===String(id)); if(!v)return;
+ const key=String(id),old=reactions[key];
+ if(old==='like'){v.likes=Math.max(0,Number(v.likes||0)-1);delete reactions[key];}
+ else{if(old==='dislike')v.dislikes=Math.max(0,Number(v.dislikes||0)-1);v.likes=Number(v.likes||0)+1;reactions[key]='like';}
+ save();
+ updateWatchControls(id);
+ updateHomeCardControls(id);
+}
+function dislikeFromWatch(id){
+ const v=allVideos().find(x=>String(x.id)===String(id)); if(!v)return;
+ const key=String(id),old=reactions[key];
+ if(old==='dislike'){v.dislikes=Math.max(0,Number(v.dislikes||0)-1);delete reactions[key];}
+ else{if(old==='like')v.likes=Math.max(0,Number(v.likes||0)-1);v.dislikes=Number(v.dislikes||0)+1;reactions[key]='dislike';}
+ save();
+ updateWatchControls(id);
+ updateHomeCardControls(id);
+}
+function updateHomeCardControls(id){
+ const key=String(id),r=reactions[key]||'';
+ document.querySelectorAll('#videos .card').forEach(card=>{
+   const video=card.querySelector('.video');
+   if(!video) return;
+   const m=allVideos().find(x=>String(x.id)===key && x.src===video.getAttribute('src'));
+   if(!m)return;
+   const btns=card.querySelectorAll('.actions button');
+   if(btns[0]){btns[0].className=r==='like'?'active':'';btns[0].textContent='👍 '+(m.likes||0);}
+   if(btns[1]){btns[1].className=r==='dislike'?'active':'';btns[1].textContent='👎 '+(m.dislikes||0);}
+ });
+}
+function subscribeFromWatch(id){subscribe(id)}
+
+function openNotifications(id){
+ const v=allVideos().find(x=>String(x.id)===String(id)); if(!v)return;
+ document.querySelector('.notify-box')?.remove();
+
+ const current=localStorage.getItem('notif_'+v.channel)||'personalized';
+ const box=document.createElement('div');
+ box.className='notify-box';
+ box.innerHTML=`
+  <h3>Notifications</h3>
+  <div class="small">इस चैनल के नए वीडियो की सूचना चुनें</div>
+  <button class="notify-option" data-value="all" type="button"><span>🔔 All</span><span>${current==='all'?'✓':''}</span></button>
+  <button class="notify-option" data-value="personalized" type="button"><span>🔔 Personalised</span><span>${current==='personalized'?'✓':''}</span></button>
+  <button class="notify-option" data-value="none" type="button"><span>🔕 None</span><span>${current==='none'?'✓':''}</span></button>
+  <button class="notify-option" data-value="unsubscribe" type="button"><span>♙ Unsubscribe</span><span></span></button>
+ `;
+
+ box.querySelectorAll('.notify-option').forEach(btn=>{
+   btn.addEventListener('click',()=>{
+     setNotification(v.channel,btn.dataset.value,v.id);
+   });
+ });
+
+ document.body.appendChild(box);
+}
+
+function setNotification(channel,value,id){
+ // Notification बदलते समय Watch page को दोबारा render नहीं करें।
+ // इससे चल रहा <video> element बना रहता है और playback नहीं रुकता।
+ if(value==='unsubscribe'){
+   localStorage.removeItem('sub_'+channel);
+   localStorage.removeItem('notif_'+channel);
+ }else{
+   localStorage.setItem('sub_'+channel,'1');
+   localStorage.setItem('notif_'+channel,value);
+ }
+ document.querySelector('.notify-box')?.remove();
+
+ const wc=document.getElementById('watchContent');
+ const watch=document.getElementById('watchVideo');
+ if(!wc) return;
+ const channelBox=wc.querySelector('.watch-channel');
+ if(!channelBox) return;
+
+ // केवल Subscribe/Bell controls अपडेट करें; वीडियो को छुएँ भी नहीं।
+ const oldSub=channelBox.querySelector('.subscribe');
+ const oldBell=channelBox.querySelector('.bell-btn');
+ if(oldSub) oldSub.remove();
+ if(oldBell) oldBell.remove();
+
+ const v=allVideos().find(x=>String(x.id)===String(id));
+ if(!v) return;
+ const subscribed=localStorage.getItem('sub_'+channel)==='1';
+ const subBtn=document.createElement('button');
+ subBtn.className='subscribe '+(subscribed?'subscribed':'');
+ subBtn.textContent=subscribed?'Subscribed':'Subscribe';
+ subBtn.onclick=()=>subscribeFromWatch(String(id));
+ channelBox.appendChild(subBtn);
+
+ if(subscribed){
+   const bell=document.createElement('button');
+   bell.className='bell-btn';
+   bell.type='button';
+   bell.textContent='🔔';
+   bell.onclick=()=>openNotifications(String(id));
+   channelBox.appendChild(bell);
+ }
+
+ // अगर वीडियो चल रहा था तो उसकी current playback को बिल्कुल न बदलें।
+ if(watch){
+   // कोई pause/play call नहीं; browser उसी playback state को बनाए रखेगा।
+ }
+}
+
+
+async function saveOnlineReaction(id,type){
+  if(!firebaseReady || !auth.currentUser) throw new Error('Firebase login तैयार नहीं है');
+  const key=String(id), uid=auth.currentUser.uid;
+  const videoRef=db.collection('videos').doc(key);
+  const reactionRef=videoRef.collection('reactions').doc(uid);
+
+  return db.runTransaction(async transaction=>{
+    const videoSnap=await transaction.get(videoRef);
+    const reactionSnap=await transaction.get(reactionRef);
+    const source=allVideos().find(x=>String(x.id)===key);
+
+    let likes=Number(videoSnap.exists ? videoSnap.data().likes||0 : source?.likes||0);
+    let dislikes=Number(videoSnap.exists ? videoSnap.data().dislikes||0 : source?.dislikes||0);
+    const oldType=reactionSnap.exists ? String(reactionSnap.data().type||'') : '';
+
+    if(!videoSnap.exists){
+      if(!source) throw new Error('वीडियो नहीं मिला');
+      transaction.set(videoRef,{
+        title:source.title||'',channel:source.channel||'',
+        src:source.src||source.videoUrl||'',
+        videoUrl:source.videoUrl||source.src||'',
+        originalVideoUrl:source.originalVideoUrl||source.src||'',
+        videoType:source.videoType||'video',
+        description:source.description||'',
+        likes:likes,dislikes:dislikes,views:Number(source.views||0),
+        comments:source.comments||[],uid:source.uid||'',
+        createdAt:firebase.firestore.FieldValue.serverTimestamp()
+      },{merge:true});
+    }
+
+    let newType=type;
+    if(oldType===type){
+      newType='';
+      if(type==='like') likes=Math.max(0,likes-1);
+      else dislikes=Math.max(0,dislikes-1);
+      transaction.delete(reactionRef);
+    }else{
+      if(oldType==='like') likes=Math.max(0,likes-1);
+      if(oldType==='dislike') dislikes=Math.max(0,dislikes-1);
+      if(type==='like') likes++;
+      else dislikes++;
+      transaction.set(reactionRef,{uid:uid,type:type,
+        updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
+    }
+
+    transaction.set(videoRef,{likes:likes,dislikes:dislikes},{merge:true});
+    return {newType,likes,dislikes};
+  });
+}
+
+function updateReactionUIs(id,likes,dislikes,type){
+  const key=String(id);
+  document.querySelectorAll('[data-reaction-id]').forEach(btn=>{
+    if(String(btn.getAttribute('data-reaction-id'))!==key) return;
+    const t=btn.getAttribute('data-reaction-type');
+    btn.classList.toggle('active',t===type);
+    if(t==='like') {
+      if(btn.closest('.short-card')){
+        const icon=btn.querySelector('.short-icon'); const count=btn.querySelector('span:last-child');
+        if(icon) icon.textContent=(type==='like'?'❤️':'♡');
+        if(count) count.textContent=formatCount(likes);
+      } else btn.textContent='👍 '+likes;
+    }
+    if(t==='dislike') {
+      if(btn.closest('.short-card')){
+        const icon=btn.querySelector('.short-icon'); const count=btn.querySelector('span:last-child');
+        if(icon) icon.textContent=(type==='dislike'?'💔':'👎');
+        if(count) count.textContent=formatCount(dislikes);
+      } else btn.textContent='👎 '+dislikes;
+    }
+  });
+
+  const watch=document.getElementById('watchContent');
+  if(watch && String(currentWatchVideoId)===key){
+    const v=allVideos().find(x=>String(x.id)===key);
+    if(v){
+      const meta=watch.querySelector('.watch-meta');
+      if(meta) meta.textContent=v.channel+' • '+likes+' Likes • '+dislikes+' Dislikes';
+      const stats=watch.querySelector('.watch-stats');
+      if(stats) stats.innerHTML='<span>👁️ '+formatCount(v.views||0)+' views</span><span>👍 '+formatCount(likes)+' likes</span><span>👎 '+formatCount(dislikes)+' dislikes</span>';
+    }
+  }
+}
+
+async function applyReaction(id,type){
+  try{
+    const key=String(id);
+    const r=await saveOnlineReaction(key,type);
+    reactions[key]=r.newType||'';
+    if(!reactions[key]) delete reactions[key];
+    const v=allVideos().find(x=>String(x.id)===key);
+    if(v){v.likes=r.likes;v.dislikes=r.dislikes;}
+    save();
+    updateReactionUIs(key,r.likes,r.dislikes,r.newType||'');
+  }catch(e){
+    console.warn('Reaction save failed:',e);
+    alert('Like/Dislike सेव नहीं हुआ: '+(e.message||'Firebase समस्या'));
+  }
+}
+
+function like(id){applyReaction(id,'like');}
+function dislike(id){applyReaction(id,'dislike');}
+function likeFromWatch(id){applyReaction(id,'like');}
+function dislikeFromWatch(id){applyReaction(id,'dislike');}
+
+async function loadOnlineReactions(){
+  if(!firebaseReady || !auth.currentUser) return;
+  for(const v of remoteVideos){
+    const key=String(v.id);
+    try{
+      const snap=await db.collection('videos').doc(key)
+        .collection('reactions').doc(auth.currentUser.uid).get();
+      if(snap.exists) reactions[key]=String(snap.data().type||'');
+      else delete reactions[key];
+      updateReactionUIs(key,Number(v.likes||0),Number(v.dislikes||0),reactions[key]||'');
+    }catch(e){console.warn('Reaction load failed:',key,e);}
+  }
+  save();
+}
+
+async function subscribe(id){
+  const v=allVideos().find(x=>String(x.id)===String(id)); if(!v)return;
+  const channel=String(v.channel||'').trim();
+  if(!channel)return;
+  if(!firebaseReady || !auth.currentUser){
+    alert('Online Subscribe के लिए Firebase login तैयार नहीं है। इंटरनेट कनेक्शन जांचें और फिर कोशिश करें।');
+    return;
+  }
+  const btns=[...document.querySelectorAll('.subscribe')].filter(b=>b.getAttribute('data-sub-channel')===channel);
+  btns.forEach(b=>{b.classList.add('loading');b.textContent='Saving...';});
+  try{
+    const {ref,snap}=await ensureOnlineSubscription(channel);
+    if(snap.exists){
+      await ref.delete();
+      onlineSubscriptionState[channel]=false;
+    }else{
+      await ref.set({subscriberUid:auth.currentUser.uid,channel,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+      onlineSubscriptionState[channel]=true;
+    }
+    await refreshOnlineSubscription(channel);
+    // Watch page पर केवल button/count अपडेट करें; video को दोबारा render न करें।
+    const wc=document.getElementById('watchContent');
+    if(wc && !document.getElementById('watch').classList.contains('hidden')){
+      const channelBox=wc.querySelector('.watch-channel');
+      if(channelBox){
+        const oldSub=channelBox.querySelector('.subscribe');
+        const oldBell=channelBox.querySelector('.bell-btn');
+        if(oldSub)oldSub.remove(); if(oldBell)oldBell.remove();
+        const subscribed=onlineSubscriptionState[channel]===true;
+        const subBtn=document.createElement('button');
+        subBtn.setAttribute('data-sub-channel',channel);
+        subBtn.className='subscribe '+(subscribed?'subscribed':'');
+        subBtn.textContent=subscribed?'Subscribed':'Subscribe';
+        subBtn.onclick=()=>subscribeFromWatch(String(id));
+        channelBox.appendChild(subBtn);
+        if(subscribed){
+          const bell=document.createElement('button');bell.className='bell-btn';bell.textContent='🔔';bell.onclick=()=>openNotifications(String(id));channelBox.appendChild(bell);
+        }
+        const cs=channelBox.querySelector('.channel-stats span');
+        if(cs)cs.textContent='👥 '+formatCount(getSubscribers(channel))+' subscribers';
+      }
+    }
+    if(document.getElementById('channelPage') && !document.getElementById('channelPage').classList.contains('hidden')){
+      const currentChannel=document.querySelector('[data-channel-page-name]')?.getAttribute('data-channel-page-name');
+      if(currentChannel===channel) renderChannelPage(channel);
+    }
+  }catch(e){
+    console.error(e);
+    btns.forEach(b=>b.classList.remove('loading'));
+    btns.forEach(b=>b.textContent=(onlineSubscriptionState[channel]===true?'Subscribed':'Subscribe'));
+    alert('Subscribe सेव नहीं हुआ: '+(e.message||'Firestore समस्या'));
+  }
+}
+let activeCommentsVideoId='';
+let commentsUnsubscribe=null;
+
+function commentCountFor(v){
+  if(!v)return 0;
+  return Array.isArray(v.comments)?v.comments.length:Number(v.commentsCount||0);
+}
+
+function updateCommentCountUI(id,count){
+  const el=document.getElementById('comment-count-'+id);
+  if(el)el.textContent=String(count);
+  const under=document.getElementById('watch-comment-count-'+id);
+  if(under)under.textContent='💬 '+String(count)+' comments';
+  document.querySelectorAll('.short-card[data-short-id=\"'+CSS.escape(String(id))+'\"] .short-actions button:nth-child(3) span:last-child').forEach(el=>el.textContent=formatCount(count));
+}
+
+function closeCommentsSheet(){
+  const sheet=document.getElementById('commentsSheet');
+  const backdrop=document.getElementById('commentsBackdrop');
+  if(sheet) {sheet.classList.remove('open');sheet.setAttribute('aria-hidden','true');}
+  if(backdrop)backdrop.classList.remove('open');
+  if(commentsUnsubscribe){try{commentsUnsubscribe();}catch(e){} commentsUnsubscribe=null;}
+  activeCommentsVideoId='';
+}
+
+function renderCommentsSheet(items){
+  const list=document.getElementById('commentsSheetList');
+  const title=document.getElementById('commentsSheetTitle');
+  if(!list||!title)return;
+  title.textContent='टिप्पणियां '+items.length;
+  if(!items.length){list.innerHTML='<div class="comments-empty">अभी तक कोई टिप्पणी नहीं</div>';return;}
+  list.innerHTML=items.map(c=>{
+    const name=esc(c.name||'Vidora User');
+    const text=esc(c.text||'');
+    const uid=encodeURIComponent(c.uid||c.name||'user');
+    return `<div class="comments-row"><img class="comments-avatar" src="https://i.pravatar.cc/80?u=${uid}" alt=""><div class="comments-body"><div><span class="comments-name">${name}</span><span class="comments-time">${c.createdAtText?esc(c.createdAtText):''}</span></div><div class="comments-text">${text}</div></div></div>`;
+  }).join('');
+}
+
+function toggleComments(id){
+  const v=allVideos().find(x=>String(x.id)===String(id));
+  activeCommentsVideoId=String(id);
+  const sheet=document.getElementById('commentsSheet');
+  const backdrop=document.getElementById('commentsBackdrop');
+  const input=document.getElementById('commentsSheetInput');
+  const avatar=document.getElementById('commentsMyAvatar');
+  if(!sheet||!backdrop)return;
+  if(commentsUnsubscribe){try{commentsUnsubscribe();}catch(e){} commentsUnsubscribe=null;}
+  sheet.classList.add('open');backdrop.classList.add('open');sheet.setAttribute('aria-hidden','false');
+  if(input){input.value='';setTimeout(()=>input.focus(),120);}
+  if(avatar)avatar.src='https://i.pravatar.cc/80?u='+encodeURIComponent(profile?.name||'vidora');
+  const initial=Array.isArray(v?.comments)?v.comments.slice():[];
+  renderCommentsSheet(initial);
+  updateCommentCountUI(id,initial.length || Number(v?.commentsCount||0));
+  if(firebaseReady && typeof db!=='undefined'){
+    try{
+      commentsUnsubscribe=db.collection('comments').where('videoId','==',String(id)).onSnapshot(snap=>{
+        const items=snap.docs.map(d=>({id:d.id,...d.data()}));
+        items.sort((a,b)=>{
+          const ta=a.createdAt?.toMillis?a.createdAt.toMillis():0;
+          const tb=b.createdAt?.toMillis?b.createdAt.toMillis():0;
+          return tb-ta;
+        });
+        renderCommentsSheet(items);
+        updateCommentCountUI(id,items.length);
+      },err=>console.warn('Comments read error:',err));
+    }catch(e){console.warn('Comments setup error:',e);}
+  }
+}
+
+async function sendCommentFromSheet(){
+  const input=document.getElementById('commentsSheetInput');
+  const text=(input?.value||'').trim();
+  if(!text||!activeCommentsVideoId)return;
+  const id=activeCommentsVideoId;
+  const v=allVideos().find(x=>String(x.id)===String(id));
+  const name=profile?.name||'Vidora User';
+  if(firebaseReady && typeof db!=='undefined'){
+    try{
+      await db.collection('comments').add({videoId:String(id),name,text,uid:auth?.currentUser?.uid||'',createdAt:firebase.firestore.FieldValue.serverTimestamp(),createdAtText:'अभी'});
+      input.value='';
+      return;
+    }catch(e){console.warn('Comment save error:',e);}
+  }
+  if(v){
+    v.comments=v.comments||[];
+    v.comments.push({name,text,uid:auth?.currentUser?.uid||'',createdAtText:'अभी'});
+    save();
+    renderCommentsSheet(v.comments.slice().reverse());
+    updateCommentCountUI(id,v.comments.length);
+    input.value='';
+  }
+}
+
+function addComment(id){toggleComments(id);}
+
+async function shareVideo(id){
+ const v=allVideos().find(x=>String(x.id)===String(id));
+ if(navigator.share) await navigator.share({title:v.title,text:v.channel,url:location.href});
+ else{await navigator.clipboard?.writeText(location.href);alert("Share link copied");}
+}
+function openGallery(){
+  if(!channelCreated || !profile.channel){
+    show('profile');
+    updateProfileUI();
+    alert('पहले एक बार अपना Channel बनाइए। इसके बाद हर बार चैनल बनाने की जरूरत नहीं होगी।');
+    return;
+  }
+  show('upload');
+  resetUploadFlow();
+  const channelNameEl=document.getElementById('channelName'); if(channelNameEl)channelNameEl.value=profile.channel;
+}
+
+let uploadType='video';
+let selectedUploadFile=null;
+let uploadDuration=0;
+let trimStart=0;
+let trimEnd=0;
+let visibility='Public';
+let audience='Not made for kids';
+let paidPromotion=false;
+let selectedThumbnailData='';
+let selectedThumbnailSource='';
+let thumbnailObjectUrl='';
+let thumbnailModalObjectUrl='';
+
+function resetUploadFlow(){
+  selectedUploadFile=null; uploadDuration=0; trimStart=0; trimEnd=0; visibility='Public'; audience='Not made for kids'; paidPromotion=false;
+  selectedThumbnailData=''; selectedThumbnailSource='';
+  if(thumbnailObjectUrl){URL.revokeObjectURL(thumbnailObjectUrl);thumbnailObjectUrl='';}
+  if(thumbnailModalObjectUrl){URL.revokeObjectURL(thumbnailModalObjectUrl);thumbnailModalObjectUrl='';}
+  const tp=document.getElementById('thumbnailPreview'); if(tp) tp.removeAttribute('src');
+  const ov=document.getElementById('uploadThumbOverlay'); if(ov){ov.removeAttribute('src');ov.style.display='none';ov.style.visibility='hidden';ov.style.opacity='0';}
+  const upv=document.getElementById('uploadPreview'); if(upv){upv.style.opacity='1';upv.style.display='block';upv.style.visibility='visible';upv.style.pointerEvents='auto';}
+  const uploadWrap=document.querySelector('.upload-video-wrap'); if(uploadWrap){uploadWrap.classList.remove('has-selected-thumbnail');uploadWrap.style.backgroundImage='';}
+  const upi=document.getElementById('uploadSelectedThumb'); if(upi){upi.removeAttribute('src');upi.style.display='none';}
+  document.getElementById('thumbnailInlinePanel')?.classList.remove('open');
+  document.getElementById('thumbnailInlinePanel')?.setAttribute('aria-hidden','true');
+  document.getElementById('thumbnailTools')?.classList.remove('open');
+  document.getElementById('thumbFrameRow')?.classList.remove('open');
+  document.getElementById('uploadStepPick').classList.add('active');
+  document.getElementById('uploadStepDetails').classList.remove('active');
+  document.getElementById('videoFile').value='';
+  document.getElementById('videoTitle').value='';
+  document.getElementById('videoDescription').value='';
+  const tagsEl=document.getElementById('videoTags'); if(tagsEl)tagsEl.value='';
+  const locEl=document.getElementById('videoLocation'); if(locEl)locEl.value='';
+  const plEl=document.getElementById('videoPlaylist'); if(plEl)plEl.value='';
+  const moreEl=document.getElementById('moreOptions'); if(moreEl)moreEl.classList.remove('open');
+  const arrowEl=document.getElementById('moreArrow'); if(arrowEl)arrowEl.textContent='⌄';
+  const visEl=document.getElementById('visibilityValue'); if(visEl)visEl.textContent=visibility;
+  const audEl=document.getElementById('audienceValue'); if(audEl)audEl.textContent=audience;
+  const paidEl=document.getElementById('paidPromotionValue'); if(paidEl)paidEl.textContent='No';
+  document.getElementById('thumbnailSelectedNote')?.classList.remove('show');
+  document.getElementById('thumbnailSelectedNote').textContent='';
+  const doneBtn=document.getElementById('thumbnailDoneBtn');
+  if(doneBtn){doneBtn.style.background='#d6d6d6';doneBtn.disabled=false;}
+  document.getElementById('uploadProgress').style.display='none';
+  document.getElementById('progressFill').style.width='0%';
+  document.getElementById('progressText').textContent='0%';
+  document.getElementById('thumbnailFile').value='';
+  document.getElementById('publishUploadBtn').disabled=false;
+  uploadType='video';
+  setTimeout(()=>setUploadType('video'),0);
+}
+
+function setUploadType(type){
+  uploadType=(type==='short')?'short':'video';
+  const vb=document.getElementById('uploadTypeVideoBtn');
+  const sb=document.getElementById('uploadTypeShortBtn');
+  const hint=document.getElementById('uploadTypeHint');
+  const choose=document.getElementById('chooseVideoFileBtn');
+  vb?.classList.toggle('active',uploadType==='video');
+  sb?.classList.toggle('active',uploadType==='short');
+  if(hint) hint.textContent=uploadType==='short' ? 'यह वीडियो Shorts में Publish होगा।' : 'यह वीडियो सामान्य Videos में Publish होगा।';
+  if(choose) choose.textContent=uploadType==='short' ? 'Short वीडियो चुनें' : 'वीडियो चुनें';
+}
+
+function chooseUploadType(type){
+  setUploadType(type);
+  const input=document.getElementById('videoFile');
+  if(input) input.value='';
+}
+
+function formatTime(sec){
+  sec=Math.max(0,Number(sec)||0);
+  const m=Math.floor(sec/60), s=Math.floor(sec%60);
+  return m+':'+String(s).padStart(2,'0');
+}
+
+function onVideoSelected(){
+  const input=document.getElementById('videoFile');
+  const file=input.files[0];
+  if(!file)return;
+  if(!file.type.startsWith('video/')){alert('सिर्फ वीडियो फाइल चुनें');input.value='';return;}
+  selectedUploadFile=file;
+  selectedThumbnailData=''; selectedThumbnailSource='';
+  hideSelectedThumbnailOnUpload();
+  document.getElementById('thumbnailSelectedNote')?.classList.remove('show');
+
+  const preview=document.getElementById('uploadPreview');
+  if(thumbnailObjectUrl){URL.revokeObjectURL(thumbnailObjectUrl);}
+  thumbnailObjectUrl=URL.createObjectURL(file);
+  preview.src=thumbnailObjectUrl;
+  preview.style.opacity='1';
+  const uploadOv=document.getElementById('uploadThumbOverlay');
+  if(uploadOv){uploadOv.style.display='none';uploadOv.removeAttribute('src');}
+  const uploadImg=document.getElementById('uploadSelectedThumb');
+  if(uploadImg){uploadImg.style.display='none';uploadImg.removeAttribute('src');}
+  preview.onloadedmetadata=()=>{
+    uploadDuration=Number(preview.duration)||0;
+    document.getElementById('uploadFileName').textContent=file.name+' • '+(file.size/1024/1024).toFixed(1)+' MB • '+formatTime(uploadDuration);
+  const ub0=document.getElementById('uploadDurationBadge'); if(ub0)ub0.textContent=formatTime(uploadDuration);
+    const ub=document.getElementById('uploadDurationBadge'); if(ub)ub.textContent=formatTime(uploadDuration);
+    // Do NOT auto-select a video frame as the user's thumbnail.
+    // A thumbnail becomes selected only after the user explicitly chooses
+    // a frame or picks an image from the gallery.
+    selectedThumbnailData='';
+    const note=document.getElementById('thumbnailSelectedNote');
+    if(note){ note.classList.remove('show'); note.textContent=''; }
+    const doneBtn=document.getElementById('thumbnailDoneBtn');
+    if(doneBtn){ doneBtn.style.background='#d6d6d6'; }
+    preview.removeAttribute('poster');
+  };
+
+  document.getElementById('uploadFileName').textContent=file.name+' • '+(file.size/1024/1024).toFixed(1)+' MB • '+formatTime(uploadDuration);
+  document.getElementById('uploadStepPick').classList.remove('active');
+  document.getElementById('uploadStepDetails').classList.add('active');
+  setupUploadThumbnailPlayback();
+  document.getElementById('videoTitle').focus();
+}
+function toggleThumbnailTools(){
+  const modal=document.getElementById('thumbnailEditModal');
+  const preview=document.getElementById('uploadPreview');
+  const mv=document.getElementById('thumbnailModalVideo');
+  const range=document.getElementById('thumbModalRange');
+  if(!modal||!preview||!selectedUploadFile)return;
+  const willOpen=!modal.classList.contains('open');
+  if(!willOpen){ closeThumbnailModal(); return; }
+  modal.classList.add('open');
+  modal.setAttribute('aria-hidden','false');
+
+  // Open the editor only. IMPORTANT: opening the pencil must NOT automatically
+  // turn a video frame into the selected thumbnail.
+  if(thumbnailModalObjectUrl){URL.revokeObjectURL(thumbnailModalObjectUrl);thumbnailModalObjectUrl='';}
+  thumbnailModalObjectUrl=URL.createObjectURL(selectedUploadFile);
+  mv.src=thumbnailModalObjectUrl;
+  mv.load();
+
+  const syncEditor=()=>{
+    const dur=Number(mv.duration)||uploadDuration||0;
+    const t=Math.min(Math.max(Number(preview.currentTime)||0,0),Math.max(0,dur-0.05));
+    if(range){range.max=dur;range.value=t;}
+    try{mv.currentTime=t;}catch(e){}
+    // No automatic capture here.
+  };
+  mv.onloadedmetadata=syncEditor;
+  mv.onloadeddata=syncEditor;
+  mv.oncanplay=syncEditor;
+  if(mv.readyState>=2) syncEditor();
+}
+function closeThumbnailModal(){
+  const modal=document.getElementById('thumbnailEditModal');
+  const v=document.getElementById('thumbnailModalVideo');
+  if(v){try{v.pause();}catch(e){}}
+  if(modal){modal.classList.remove('open');modal.setAttribute('aria-hidden','true');}
+}
+function previewModalThumbnailFrame(){
+  const v=document.getElementById('thumbnailModalVideo');
+  const r=document.getElementById('thumbModalRange');
+  const main=document.getElementById('uploadPreview');
+  if(!v||!r)return;
+  const t=Number(r.value)||0;
+  const afterSeek=()=>{
+    try{captureModalThumbnailFrame();}catch(e){}
+    v.removeEventListener('seeked',afterSeek);
+  };
+  v.addEventListener('seeked',afterSeek);
+  try{v.currentTime=t;}catch(e){setTimeout(afterSeek,120);}
+  if(main){try{main.currentTime=t;}catch(e){}}
+}
+function showSelectedThumbnailOnUpload(){
+  const ov=document.getElementById('uploadThumbOverlay');
+  const v=document.getElementById('uploadPreview');
+  const wrap=v?.closest('.upload-video-wrap');
+  if(!selectedThumbnailData || !ov || !wrap) return;
+
+  // Android/WebView can keep <video> in a composited layer above normal DOM
+  // elements. Therefore the selected gallery image becomes the visible preview
+  // while the original video element remains in place but invisible.
+  ov.src=selectedThumbnailData;
+  ov.style.display='block';
+  ov.style.visibility='visible';
+  ov.style.opacity='1';
+  ov.style.zIndex='30';
+  wrap.classList.add('has-selected-thumbnail');
+  wrap.style.backgroundImage='url("' + selectedThumbnailData.replace(/"/g,'\\"') + '")';
+
+  // Android/WebView: remove the video from rendering, while the wrapper
+  // keeps a fixed 16:9 box for the absolute thumbnail image.
+  v.style.display='none';
+  v.style.visibility='hidden';
+  v.style.opacity='0';
+  v.style.pointerEvents='none';
+}
+function hideSelectedThumbnailOnUpload(){
+  const ov=document.getElementById('uploadThumbOverlay');
+  const v=document.getElementById('uploadPreview');
+  const wrap=v?.closest('.upload-video-wrap');
+  if(ov){
+    ov.style.display='none';
+    ov.style.visibility='hidden';
+    ov.style.opacity='0';
+    ov.removeAttribute('src');
+  }
+  if(wrap){
+    wrap.classList.remove('has-selected-thumbnail');
+    wrap.style.backgroundImage='';
+  }
+  if(v){
+    v.style.display='block';
+    v.style.visibility='visible';
+    v.style.opacity='1';
+    v.style.pointerEvents='auto';
+  }
+}
+
+function captureModalThumbnailFrame(){
+  // A photo chosen from the phone gallery must stay selected until the user
+  // explicitly chooses another gallery photo.
+  if(selectedThumbnailSource==='gallery') return;
+  const v=document.getElementById('thumbnailModalVideo');
+  if(!v || v.readyState<2) return;
+  const data=makeThumbnailFromVideo(v);
+  if(!data)return;
+  selectedThumbnailData=data;
+  selectedThumbnailSource='frame';
+  showSelectedThumbnailOnUpload();
+  markThumbnailSelected();
+  const main=document.getElementById('uploadPreview');
+  if(main){
+    main.poster=data;
+    try{main.pause();}catch(e){}
+  }
+  const tp=document.getElementById('thumbnailPreview'); if(tp) tp.src=data;
+}
+function applyThumbnailFromModal(){
+  // Do not overwrite a gallery-selected thumbnail with the current video frame.
+  // Frame changes are already captured while the slider moves.
+  if(!selectedThumbnailData){alert('पहले Thumbnail चुनें।');return;}
+  showSelectedThumbnailOnUpload();
+  markThumbnailSelected();
+  const main=document.getElementById('uploadPreview');
+  if(main){
+    main.poster=selectedThumbnailData;
+    try{main.pause();}catch(e){}
+  }
+  closeThumbnailModal();
+}
+function setDefaultThumbnailFrame(){
+  const preview=document.getElementById('uploadPreview');
+  const range=document.getElementById('thumbFrameRange');
+  if(!preview||!range)return;
+  const t=Math.min(Math.max(0.5, (preview.duration||1)*0.1), Math.max(0.1,(preview.duration||1)-0.1));
+  range.max=preview.duration||0; range.value=t;
+  preview.currentTime=t;
+  setTimeout(()=>captureThumbnailFrame(true),150);
+}
+function startFrameThumbnail(){
+  const panel=document.getElementById('thumbnailInlinePanel');
+  if(panel&&!panel.classList.contains('open')){
+    panel.classList.add('open');
+    panel.setAttribute('aria-hidden','false');
+  }
+  const preview=document.getElementById('uploadPreview');
+  const range=document.getElementById('thumbFrameRange');
+  if(preview&&range){
+    range.max=Number(preview.duration)||uploadDuration||0;
+    range.value=Number(preview.currentTime)||0;
+  }
+  previewThumbnailFrame();
+}
+function previewThumbnailFrame(){
+  const preview=document.getElementById('uploadPreview');
+  const range=document.getElementById('thumbFrameRange');
+  if(!preview||!range)return;
+  const t=Number(range.value)||0;
+  try{preview.currentTime=t;}catch(e){}
+}
+function makeThumbnailFromVideo(video){
+  if(!video || !video.videoWidth || !video.videoHeight)return '';
+  const canvas=document.createElement('canvas');
+  const maxW=640, ratio=video.videoWidth/video.videoHeight || 16/9;
+  canvas.width=maxW; canvas.height=Math.max(1,Math.round(maxW/ratio));
+  const ctx=canvas.getContext('2d'); ctx.drawImage(video,0,0,canvas.width,canvas.height);
+  return canvas.toDataURL('image/jpeg',0.78);
+}
+function captureThumbnailFrame(silent=false){
+  const preview=document.getElementById('uploadPreview');
+  const data=makeThumbnailFromVideo(preview);
+  if(!data){if(!silent)alert('वीडियो Frame अभी तैयार नहीं है।');return;}
+  selectedThumbnailData=data;
+  showSelectedThumbnailOnUpload();
+  const main=document.getElementById('uploadPreview'); if(main){ main.poster=data; try{main.pause();}catch(e){} }
+  const img=document.getElementById('thumbnailPreview'); if(img) img.src=data;
+
+}
+function setThumbnailDoneState(active){
+  const btn=document.getElementById('thumbnailDoneBtn');
+  if(btn){
+    btn.style.background=active?'#e53935':'#d6d6d6';
+    btn.style.color='#fff';
+  }
+}
+function markThumbnailSelected(){
+  const note=document.getElementById('thumbnailSelectedNote');
+  if(note){
+    note.textContent='✓ Thumbnail select हो गया';
+    note.classList.add('show');
+  }
+  setThumbnailDoneState(true);
+}
+function onThumbnailFileSelected(){
+  const input=document.getElementById('thumbnailFile');
+  const file=input?.files?.[0];
+  if(!file)return;
+  if(!file.type.startsWith('image/')){alert('सिर्फ फोटो चुनें');if(input)input.value='';return;}
+  const reader=new FileReader();
+  reader.onload=()=>{
+    const img=new Image();
+    img.onload=()=>{
+      const canvas=document.createElement('canvas'); const maxW=640;
+      const ratio=img.width/img.height || 16/9;
+      canvas.width=maxW; canvas.height=Math.max(1,Math.round(maxW/ratio));
+      const ctx=canvas.getContext('2d'); ctx.drawImage(img,0,0,canvas.width,canvas.height);
+      selectedThumbnailData=canvas.toDataURL('image/jpeg',0.82);
+      selectedThumbnailSource='gallery';
+      showSelectedThumbnailOnUpload();
+      markThumbnailSelected();
+      const main=document.getElementById('uploadPreview');
+      if(main){ try{main.pause();}catch(e){} main.poster=selectedThumbnailData; main.removeAttribute('data-thumb-playing'); }
+      const tp=document.getElementById('thumbnailPreview'); if(tp) tp.src=selectedThumbnailData;
+      const mp=document.getElementById('thumbnailModalPreview'); if(mp) mp.src=selectedThumbnailData;
+      const mv=document.getElementById('thumbnailModalVideo'); if(mv) mv.poster=selectedThumbnailData;
+      if(input)input.value='';
+    };
+    img.onerror=()=>alert('Thumbnail फोटो पढ़ी नहीं जा सकी। दूसरी फोटो चुनें।');
+    img.src=reader.result;
+  };
+  reader.onerror=()=>alert('Thumbnail फोटो पढ़ी नहीं जा सकी।');
+  reader.readAsDataURL(file);
+}
+
+
+// The selected thumbnail is only a pre-play preview. Once the upload video actually plays,
+// the browser's video frame takes over and the thumbnail is no longer shown.
+function setupUploadThumbnailPlayback(){
+  const v=document.getElementById('uploadPreview');
+  if(!v || v.dataset.thumbPlayHook==='1') return;
+  v.dataset.thumbPlayHook='1';
+  v.addEventListener('play',()=>{
+    // The upload screen intentionally keeps the selected thumbnail visible.
+    // Video playback remains available in the thumbnail editor.
+    if(selectedThumbnailData){ try{v.pause();}catch(e){} return; }
+    v.removeAttribute('data-thumb-playing');
+    const b=document.getElementById('uploadDurationBadge'); if(b)b.style.display='none';
+  });
+  v.addEventListener('pause',()=>{
+    const b=document.getElementById('uploadDurationBadge'); if(b)b.style.display='block';
+    if(selectedThumbnailData && v.currentTime < 0.01) showSelectedThumbnailOnUpload();
+  });
+}
+
+function updateTrim(which){
+  const a=document.getElementById('trimStart'),b=document.getElementById('trimEnd');
+  if(which==='start') trimStart=Math.min(Number(a.value),Math.max(0,trimEnd-0.2));
+  else trimEnd=Math.max(Number(b.value),Math.min(uploadDuration,trimStart+0.2));
+  a.value=trimStart;b.value=trimEnd;
+  const preview=document.getElementById('uploadPreview');
+  if(preview.duration && Number.isFinite(trimStart)) preview.currentTime=trimStart;
+  updateTrimText();
+}
+function updateTrimText(){
+  document.getElementById('trimStartText').textContent=formatTime(trimStart);
+  document.getElementById('trimEndText').textContent=formatTime(trimEnd);
+}
+
+function cycleVisibility(){
+  visibility=visibility==='Public'?'Unlisted':visibility==='Unlisted'?'Private':'Public';
+  document.getElementById('visibilityValue').textContent=visibility;
+}
+function cycleAudience(){
+  audience=audience==='Not made for kids'?'Made for kids':'Not made for kids';
+  document.getElementById('audienceValue').textContent=audience;
+}
+function toggleMoreOptions(){
+  const box=document.getElementById('moreOptions');box.classList.toggle('open');
+  document.getElementById('moreArrow').textContent=box.classList.contains('open')?'⌃':'⌄';
+}
+function togglePaidPromotion(){
+  paidPromotion=!paidPromotion;
+  document.getElementById('paidPromotionValue').textContent=paidPromotion?'Yes':'No';
+}
+
+function makeTrimmedCloudinaryUrl(result){
+  if(!result?.public_id)return result?.secure_url||'';
+  const start=Math.max(0,Number(trimStart)||0);
+  const end=Math.max(start+0.1,Number(trimEnd)||Number(result.duration)||uploadDuration||0);
+  if(start<=0.01 && end>=(Number(result.duration)||uploadDuration)-0.05) return result.secure_url;
+  const ext=(result.format||'mp4').replace(/[^a-z0-9]/gi,'')||'mp4';
+  const path='https://res.cloudinary.com/zp7wpukk/video/upload/so_'+start.toFixed(1)+',eo_'+end.toFixed(1)+'/'+result.public_id+'.'+ext;
+  return path;
+}
+
+function uploadToCloudinary(file,onProgress){
+  return new Promise((resolve,reject)=>{
+    const cloudName='zp7wpukk';
+    const uploadPreset='vidora_upload';
+    const endpoint='https://api.cloudinary.com/v1_1/'+cloudName+'/video/upload';
+    let settled=false;
+    let widgetOpened=false;
+
+    const done=(result)=>{
+      if(settled)return;
+      settled=true;
+      if(onProgress)onProgress(100);
+      resolve(result);
+    };
+    const fail=(message)=>{
+      if(settled)return;
+      settled=true;
+      reject(new Error(message));
+    };
+
+    // WebView-safe fallback: Cloudinary's official Upload Widget can handle
+    // client-side unsigned uploads when a WebView blocks direct XHR/CORS.
+    const openWidgetFallback=()=>{
+      if(widgetOpened)return;
+      widgetOpened=true;
+
+      if(typeof cloudinary==='undefined' || typeof cloudinary.createUploadWidget!=='function'){
+        fail('Cloudinary direct upload WebView में block हुआ और Upload Widget उपलब्ध नहीं है।');
+        return;
+      }
+
+      if(onProgress)onProgress(1);
+
+      const widgetOptions={
+        cloudName:cloudName,
+        uploadPreset:uploadPreset,
+        sources:['local'],
+        multiple:false,
+        resourceType:'video',
+        clientAllowedFormats:['mp4','mov','webm','mkv'],
+        maxFileSize:500000000,
+        showAdvancedOptions:false,
+        cropping:false,
+        showPoweredBy:false
+      };
+
+      const widget=cloudinary.createUploadWidget(widgetOptions,(error,result)=>{
+        if(error){
+          fail('Cloudinary Upload Widget: '+(error.message||'Upload failed'));
+          return;
+        }
+        if(!result)return;
+
+        if(result.event==='progress' && result.info && onProgress){
+          const p=Number(result.info.percent||0);
+          onProgress(Math.min(99,Math.round(p)));
+        }
+
+        if(result.event==='success' && result.info && result.info.secure_url){
+          done(result.info);
+        }
+
+        if(result.event==='abort'){
+          fail('Upload रद्द हो गया।');
+        }
+      });
+
+      try{
+        widget.open();
+      }catch(err){
+        fail(err && err.message ? err.message : 'Cloudinary Upload Widget शुरू नहीं हो पाया।');
+      }
+    };
+
+    // First try the existing direct unsigned upload so normal web behaviour
+    // and upload progress remain unchanged.
+    try{
+      const xhr=new XMLHttpRequest();
+      xhr.open('POST',endpoint,true);
+      xhr.timeout=15*60*1000;
+      xhr.withCredentials=false;
+
+      xhr.upload.onprogress=e=>{
+        if(e.lengthComputable && onProgress){
+          onProgress(Math.min(99,Math.round((e.loaded/e.total)*100)));
+        }
+      };
+
+      xhr.onload=()=>{
+        let result={};
+        try{result=JSON.parse(xhr.responseText||'{}');}catch(e){}
+
+        if(xhr.status>=200 && xhr.status<300 && result.secure_url){
+          done(result);
+          return;
+        }
+
+        const apiMsg=result && result.error && result.error.message
+          ? result.error.message
+          : ('HTTP '+xhr.status+' '+(xhr.statusText||''));
+
+        // A real Cloudinary response means the request reached Cloudinary;
+        // don't hide preset/authentication errors behind a WebView fallback.
+        if(/upload preset/i.test(apiMsg) || xhr.status===401 || xhr.status===403){
+          let friendly=apiMsg;
+          if(/upload preset/i.test(apiMsg)){
+            friendly='Cloudinary Upload Preset "'+uploadPreset+'" नहीं मिला या Unsigned Upload बंद है। Cloudinary में इसी नाम का Unsigned preset जांचें।';
+          }else{
+            friendly='Cloudinary ने upload रोक दिया (HTTP '+xhr.status+'). Cloud Name और Upload Preset जांचें।';
+          }
+          fail('Cloudinary: '+friendly);
+          return;
+        }
+
+        if(xhr.status===413){
+          fail('वीडियो बहुत बड़ी है (HTTP 413)। छोटी वीडियो से दोबारा कोशिश करें।');
+          return;
+        }
+
+        // Other HTTP/network-style failures get the WebView fallback.
+        openWidgetFallback();
+      };
+
+      // onerror is the exact failure shown in the user's final test.
+      xhr.onerror=()=>openWidgetFallback();
+      xhr.ontimeout=()=>openWidgetFallback();
+      xhr.onabort=()=>fail('Upload रद्द हो गया।');
+
+      const form=new FormData();
+      form.append('file',file);
+      form.append('upload_preset',uploadPreset);
+      form.append('resource_type','video');
+      xhr.send(form);
+    }catch(err){
+      openWidgetFallback();
+    }
+  });
+}
+
+async function publishVideo(){
+  const file=selectedUploadFile||document.getElementById('videoFile').files[0];
+  const title=document.getElementById('videoTitle').value.trim();
+  const description=document.getElementById('videoDescription').value.trim();
+  const channel=profile.channel;
+
+  if(!channelCreated || !channel){alert('पहले Profile में एक बार Channel बनाइए।');show('profile');updateProfileUI();return;}
+  if(!file||!title){alert('पहले वीडियो चुनें और Title भरें');return;}
+  if(!file.type.startsWith('video/')){alert('सिर्फ वीडियो फाइल चुनें');return;}
+  if(uploadType==='short' && uploadDuration>180){alert('Short के लिए 3 मिनट या उससे कम वीडियो चुनें या trim करके छोटा करें।');return;}
+  if(!firebaseReady){alert('Firebase अभी तैयार नहीं है। पहले Firebase Authentication में Anonymous sign-in चालू करें।');return;}
+
+  const btn=document.getElementById('publishUploadBtn');
+  btn.disabled=true; btn.textContent='Uploading...';
+  document.getElementById('uploadProgress').style.display='block';
+
+  try{
+    const result=await uploadToCloudinary(file,p=>{
+      document.getElementById('progressFill').style.width=p+'%';
+      document.getElementById('progressText').textContent='Video upload '+p+'%';
+    });
+
+    document.getElementById('progressText').textContent='Video processing...';
+    const finalUrl=makeTrimmedCloudinaryUrl(result);
+
+    // Upload the chosen thumbnail as a real image. If the APK/WebView blocks
+    // the second upload, keep the compressed data URL as a Firestore fallback.
+    let savedThumbnail=selectedThumbnailData||'';
+    if(selectedThumbnailData){
+      try{
+        document.getElementById('progressText').textContent='Thumbnail save हो रहा है...';
+        const blob=await (await fetch(selectedThumbnailData)).blob();
+        const thumbFile=new File([blob],'vidora-thumbnail.jpg',{type:'image/jpeg'});
+        const tr=await uploadImageToCloudinary(thumbFile);
+        savedThumbnail=tr.secure_url||savedThumbnail;
+      }catch(thumbErr){
+        console.warn('Thumbnail Cloudinary upload failed; using Firestore image fallback:',thumbErr);
+      }
+    }
+
+    document.getElementById('progressFill').style.width='100%';
+    document.getElementById('progressText').textContent='100%';
+
+    const tags=(document.getElementById('videoTags')?.value||'').trim();
+    const location=(document.getElementById('videoLocation')?.value||'').trim();
+    const playlist=(document.getElementById('videoPlaylist')?.value||'').trim();
+    const doc={
+      title,
+      channel,
+      src:finalUrl,
+      videoUrl:finalUrl,
+      originalVideoUrl:result.secure_url,
+      publicId:result.public_id||'',
+      format:result.format||'mp4',
+      duration:Number(result.duration||uploadDuration||0),
+      trimStart:0,
+      trimEnd:Number(result.duration||uploadDuration||0),
+      videoType:uploadType,
+      description,
+      visibility,
+      audience,
+      tags,
+      location,
+      playlist,
+      paidPromotion,
+      ownerUid:auth.currentUser?.uid||'',
+      channelCreated:true,
+      likes:0,
+      dislikes:0,
+      views:0,
+      comments:[],
+      thumbnailUrl:savedThumbnail,
+      createdAt:firebase.firestore.FieldValue.serverTimestamp(),
+      uid:auth.currentUser?.uid||''
+    };
+
+    await db.collection('videos').add(doc);
+    alert('वीडियो सफलतापूर्वक Publish हो गया ✅');
+    resetUploadFlow();
+    show('home');
+  }catch(err){
+    console.error(err);
+    alert('Upload नहीं हुआ: '+(err.message||'Internet/Firebase/Cloudinary समस्या'));
+  }finally{
+    btn.disabled=false;
+    btn.textContent='Upload';
+  }
+}
+
+function updateProfileUI(){
+  document.getElementById('profileName').textContent=profile.name||'मेरा Profile';
+  document.getElementById('newName').value=profile.name||'';
+  document.getElementById('newChannel').value=profile.channel||'';
+  try{
+    const pb=profile.channel?JSON.parse(localStorage.getItem('vidoraChannelBranding_'+profile.channel)||'{}'):{};
+    const pa=document.getElementById('profileAvatar');
+    if(pa && pb.avatarUrl) pa.src=pb.avatarUrl;
+  }catch(e){}
+  const ch=document.getElementById('newChannel');
+  const btn=document.getElementById('saveChannelBtn');
+  const status=document.getElementById('channelStatus');
+  const brandingBtn=document.getElementById('editBrandingBtn');
+  if(channelCreated){
+    ch.readOnly=true;
+    if(brandingBtn) brandingBtn.classList.remove('hidden');
+    btn.textContent='Profile Save करें';
+    status.className='channel-lock ok';
+    status.textContent='✓ आपका चैनल बन चुका है: '+(profile.channel||'मेरा चैनल')+' — अब हर वीडियो और Short इसी चैनल पर Publish होगा।';
+  }else{
+    ch.readOnly=false;
+    if(brandingBtn) brandingBtn.classList.add('hidden');
+    document.getElementById('channelBranding')?.classList.add('hidden');
+    btn.textContent='Profile / Channel बनाएं';
+    status.className='channel-lock';
+    status.textContent='पहली बार अपना चैनल बनाइए। चैनल एक बार बन जाने के बाद हर Upload में वही चैनल अपने-आप लगेगा।';
+  }
+}
+
+async function saveProfile(){
+  const n=document.getElementById('newName').value.trim();
+  const c=document.getElementById('newChannel').value.trim();
+  if(n) profile.name=n;
+  if(!channelCreated){
+    if(!c){alert('पहले चैनल का नाम लिखें');return;}
+    profile.channel=c;
+    channelCreated=true;
+  }
+  persistProfileLocal();
+  updateProfileUI();
+  if(firebaseReady && auth.currentUser){
+    try{
+      await db.collection('users').doc(auth.currentUser.uid).set({name:profile.name||'',channel:profile.channel||'',channelCreated:true,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+    }catch(e){ console.warn('Profile cloud save failed:',e); }
+  }
+  alert(channelCreated?'Profile और Channel सेव हो गया':'Profile सेव हो गया');
+}
+
+async function loadCloudProfile(){
+  if(!firebaseReady || !auth.currentUser)return;
+  try{
+    const snap=await db.collection('users').doc(auth.currentUser.uid).get();
+    if(snap.exists){
+      const d=snap.data()||{};
+      if(d.name)profile.name=d.name;
+      if(d.channel){profile.channel=d.channel;channelCreated=true;}
+      if(d.channelBranding && profile.channel) localStorage.setItem('vidoraChannelBranding_'+profile.channel,JSON.stringify(d.channelBranding));
+      persistProfileLocal();
+      updateProfileUI();
+    }else if(channelCreated && profile.channel){
+      await db.collection('users').doc(auth.currentUser.uid).set({name:profile.name||'',channel:profile.channel,channelCreated:true,createdAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+    }
+  }catch(e){console.warn('Profile cloud load failed:',e);}
+}
+
+
+
+function openMyChannelOrSetup(){
+  if(channelCreated && profile.channel) openChannel(profile.channel);
+  else {show('profile');updateProfileUI();}
+}
+
+function openSeparateEditChannel(){
+  if(!channelCreated || !profile.channel){show('profile');updateProfileUI();return;}
+  const channel=String(profile.channel);
+  const data=JSON.parse(localStorage.getItem('vidoraChannelBranding_'+channel)||'{}');
+  document.getElementById('editChannelName').value=profile.channel||'';
+  document.getElementById('editChannelHandle').value=profile.handle||('@'+channel.replace(/\s+/g,'').toLowerCase());
+  document.getElementById('editChannelUrl').value='https://vidora.app/channel/'+encodeURIComponent(channel);
+  document.getElementById('editChannelDescription').value=profile.description||'';
+  document.getElementById('editCommunity').checked=profile.community!==false;
+  document.getElementById('editPrivacy').checked=profile.privacy===true;
+  document.getElementById('editAvatarPreview').src=data.avatarUrl||('https://i.pravatar.cc/160?u='+encodeURIComponent(channel));
+  document.getElementById('editBannerPreview').style.backgroundImage=data.bannerUrl
+    ? 'url("'+data.bannerUrl.replace(/"/g,'\\"')+'")':'none';
+  show('editChannel');
+}
+
+async function saveSeparateChannelEdit(){
+  const oldChannel=String(profile.channel||'');
+  const name=document.getElementById('editChannelName').value.trim();
+  const handle=document.getElementById('editChannelHandle').value.trim();
+  const description=document.getElementById('editChannelDescription').value.trim();
+  if(!name){alert('Channel Name लिखें');return;}
+  try{
+    const key='vidoraChannelBranding_'+oldChannel;
+    const branding=JSON.parse(localStorage.getItem(key)||'{}');
+    const av=document.getElementById('editChannelAvatarFile').files?.[0];
+    const bn=document.getElementById('editChannelBannerFile').files?.[0];
+    if(av){
+      try{const r=await uploadImageToCloudinary(av);branding.avatarUrl=r.secure_url;}
+      catch(e){branding.avatarUrl=await compactImageDataUrl(av,600,0.82);}
+    }
+    if(bn){
+      try{const r=await uploadImageToCloudinary(bn);branding.bannerUrl=r.secure_url;}
+      catch(e){branding.bannerUrl=await compactImageDataUrl(bn,1280,0.78);}
+    }
+    profile.channel=name;
+    profile.handle=handle||('@'+name.replace(/\s+/g,'').toLowerCase());
+    profile.description=description;
+    profile.community=document.getElementById('editCommunity').checked;
+    profile.privacy=document.getElementById('editPrivacy').checked;
+    channelCreated=true;
+    persistProfileLocal();
+    localStorage.setItem('vidoraChannelBranding_'+name,JSON.stringify(branding));
+    if(oldChannel!==name)localStorage.removeItem(key);
+    if(firebaseReady&&auth.currentUser){
+      await db.collection('users').doc(auth.currentUser.uid).set({
+        name:profile.name||'',channel:name,handle:profile.handle||'',
+        description:profile.description||'',community:profile.community,
+        privacy:profile.privacy,channelCreated:true,channelBranding:branding,
+        updatedAt:firebase.firestore.FieldValue.serverTimestamp()
+      },{merge:true});
+    }
+    document.getElementById('editChannelAvatarFile').value='';
+    document.getElementById('editChannelBannerFile').value='';
+    openChannel(name);
+  }catch(e){alert('Channel update नहीं हुआ: '+(e.message||'समस्या'));}
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  const av=document.getElementById('editChannelAvatarFile');
+  const bn=document.getElementById('editChannelBannerFile');
+  av?.addEventListener('change',()=>{const f=av.files?.[0];if(f)document.getElementById('editAvatarPreview').src=URL.createObjectURL(f);});
+  bn?.addEventListener('change',()=>{const f=bn.files?.[0];if(f)document.getElementById('editBannerPreview').style.backgroundImage='url("'+URL.createObjectURL(f)+'")';});
+});
+
+function openChannel(channel){
+  channel=String(channel||'').trim();
+  if(!channel)return;
+  document.querySelectorAll('video').forEach(el=>{try{el.pause()}catch(e){}});
+  show('channelPage');
+  renderChannelPage(channel);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+async function renderChannelPage(channel, tab='home'){
+  v58CurrentChannel=String(channel||''); v58CurrentTab=tab;
+  const list=allVideos().filter(v=>String(v.channel||'')===channel);
+  const shorts=list.filter(v=>String(v.videoType||'video')==='short');
+  const videosOnly=list.filter(v=>String(v.videoType||'video')!=='short');
+  const count=getSubscribers(channel);
+  const subscribed=(onlineSubscriptionState[channel]===true) || localStorage.getItem('sub_'+channel)==='1';
+  let channelData={};
+  try{channelData=JSON.parse(localStorage.getItem('vidoraChannelBranding_'+channel)||'{}')||{};}catch(e){channelData={};}
+  if(firebaseReady && (!channelData.bannerUrl || !channelData.avatarUrl)){
+    try{
+      let snap=null;
+      if(auth.currentUser && channel===String(profile.channel||'')){
+        snap=await db.collection('users').doc(auth.currentUser.uid).get();
+      }else{
+        const qs=await db.collection('users').where('channel','==',channel).limit(1).get();
+        if(!qs.empty) snap=qs.docs[0];
+      }
+      const cb=snap&&snap.exists?(snap.data().channelBranding||{}):{};
+      if(cb.bannerUrl||cb.avatarUrl){
+        channelData={...channelData,...cb};
+        localStorage.setItem('vidoraChannelBranding_'+channel,JSON.stringify(channelData));
+      }
+    }catch(e){console.warn('Channel branding cloud recovery failed:',e);}
+  }
+  const avatar=channelData.avatarUrl || ('https://i.pravatar.cc/160?u='+encodeURIComponent(channel));
+  const banner=channelData.bannerUrl || '';
+  const isOwner=channelCreated && String(profile.channel||'')===channel;
+  let posts=[];
+  if(firebaseReady){
+    try{ const snap=await db.collection('posts').where('channel','==',channel).orderBy('createdAt','desc').limit(50).get(); posts=snap.docs.map(d=>({id:d.id,...d.data()})); }
+    catch(e){ console.warn('Posts load failed:',e); }
+  } else { posts=JSON.parse(localStorage.getItem('vidoraPosts_'+channel)||'[]'); }
+  const body = tab==='shorts' ? (shorts.length ? shorts.map(v=>channelVideoItem(v,isOwner)).join('') : emptyChannel('इस चैनल पर अभी कोई Short नहीं है।'))
+    : tab==='posts' ? renderPostsMarkup(posts,isOwner,channel)
+    : (videosOnly.length ? videosOnly.map(v=>channelVideoItem(v,isOwner)).join('') : emptyChannel('इस चैनल पर अभी कोई वीडियो नहीं है।'));
+  document.getElementById('channelPageContent').innerHTML=`
+    <div class="channel-page-head" data-channel-page-name="${esc(channel)}">
+      <button class="back-btn" onclick="history.back()">‹</button>
+      <div class="channel-cover" data-banner-slot="1">
+        ${isOwner?'<button class="v39-camera channel-cover-camera" onclick="openSeparateEditChannel()">📷</button>':''}
+      </div>
+      <div class="channel-profile-row">
+        <div class="v39-channel-avatar-wrap">
+          <img class="channel-page-avatar" src="${esc(avatar)}" alt="Channel">
+          ${isOwner?'<button class="v39-camera v39-channel-avatar-camera" onclick="openSeparateEditChannel()">📷</button>':''}
+        </div>
+        <div>
+          <div class="channel-page-name">${esc(channel)}</div>
+          <div class="channel-page-sub">${esc(profile.handle||('@'+String(channel).replace(/\s+/g,'').toLowerCase()))}</div>
+          <div class="channel-page-sub"><span class="channel-page-count" data-sub-channel="${esc(channel)}">${formatCount(count)} subscribers</span> • ${videosOnly.length} videos</div>
+        </div>
+      </div><div class="channel-page-sub"><span class="channel-page-count" data-sub-channel="${esc(channel)}">${formatCount(count)} subscribers</span> • ${list.length} videos • ${shorts.length} Shorts</div></div>
+      </div>
+      <div class="channel-page-actions">
+        <button data-sub-channel="${esc(channel)}" class="subscribe ${subscribed?'subscribed':''}" onclick='subscribeChannelPage(${JSON.stringify(channel)})'>${subscribed?'Subscribed':'Subscribe'}</button>
+        ${isOwner?'<button onclick="show(\'profile\');setTimeout(toggleBranding,50)">✏️ Edit channel</button>':''}
+      </div>
+    </div>
+    <div class="channel-tabs">
+      <button class="${tab==='home'?'active':''}" onclick='renderChannelPage(${JSON.stringify(channel)},"home")'>Videos</button>
+      <button class="${tab==='shorts'?'active':''}" onclick='renderChannelPage(${JSON.stringify(channel)},"shorts")'>Shorts</button>
+      <button class="${tab==='posts'?'active':''}" onclick='renderChannelPage(${JSON.stringify(channel)},"posts")'>Posts</button>
+    </div>
+    ${tab==='posts' && isOwner ? `<div class="post-compose"><b>📝 नया Post</b><textarea id="postText" placeholder="अपने चैनल पर कुछ लिखें..."></textarea><input id="postImage" type="file" accept="image/*"><button class="primary" onclick='createChannelPost(${JSON.stringify(channel)})'>Post Publish करें</button></div>`:''}
+    <div class="channel-video-list">${body}</div>`;
+  // V90: apply the saved banner directly to the rendered DOM. This avoids WebView/CSS/HTML parsing issues with long data URLs.
+  try {
+    const bannerEl=document.querySelector('#channelPageContent .channel-cover[data-banner-slot="1"]');
+    if(bannerEl){
+      bannerEl.style.backgroundImage = banner ? 'url("'+String(banner).replace(/\\/g,'\\\\').replace(/"/g,'\\"')+'")' : 'none';
+      bannerEl.style.backgroundSize='cover';
+      bannerEl.style.backgroundPosition='center';
+      bannerEl.style.backgroundRepeat='no-repeat';
+    }
+  } catch(e) { console.warn('V90 banner render failed:',e); }
+  if(firebaseReady && auth.currentUser) refreshOnlineSubscription(channel);
+}
+function emptyChannel(t){return '<div class="small" style="padding:20px 0">'+t+'</div>';}
+function channelVideoItem(v,isOwner=false){
+  const isShort=String(v.videoType||'video')==='short';
+  const openFn=isShort
+    ? `openChannelShort(${JSON.stringify(String(v.id))},event)`
+    : `openWatch(${JSON.stringify(String(v.id))},event)`;
+  // Owner channel page: every listed video gets its own 3-dot menu.
+  // Do not re-check ownerUid here, otherwise older videos can lose their menu.
+  const owner = !!isOwner;
+  const menu = owner ? `<div class="v58-video-more-wrap" onclick="event.stopPropagation()">
+    <button class="v58-more-btn" type="button" aria-label="Video options" onclick='toggleVideoActionsV58(event,${JSON.stringify(String(v.id))})'>⋮</button>
+    <div class="v58-actions-menu" id="videoActionsV58-${esc(String(v.id))}">
+      <button onclick='promoteVideoV58(${JSON.stringify(String(v.id))})'>📣 <span>Promote</span></button>
+      <button onclick='shareVideoV58(${JSON.stringify(String(v.id))})'>↗️ <span>Share</span></button>
+      <button onclick='analyticsVideoV58(${JSON.stringify(String(v.id))})'>📊 <span>View analytics</span></button>
+      <button onclick='editVideoV58(${JSON.stringify(String(v.id))},false)'>✏️ <span>Edit</span></button>
+      <button onclick='saveVideoToDeviceV58(${JSON.stringify(String(v.id))})'>💾 <span>Save to device</span></button>
+      <button class="danger" onclick='openDeleteV58(${JSON.stringify(String(v.id))})'>🗑️ <span>Delete</span></button>
+      <button onclick='editVideoV58(${JSON.stringify(String(v.id))},true)'>⚙️ <span>Edit advanced settings in Studio</span></button>
+    </div>
+  </div>` : '';
+  return `<article class="channel-video-item" onclick='${openFn}'>
+  <div class="channel-thumb-wrap"><img class="channel-thumbnail-image" alt="" src="${esc(getThumbnailUrl(v)||'')}"><span class="duration-badge">${formatVideoDuration(v)}</span></div>
+  <div class="channel-video-info"><div class="channel-video-title">${esc(v.title)}</div><div class="small">${formatCount(v.views||0)} views • ${formatCount(v.likes||0)} likes</div><div class="small">${formatVideoDuration(v)} • ${formatTimeAgo(v.createdAt)}</div><div class="small">${esc(v.channel)}</div></div>${menu}
+</article>`;
+}
+function renderPostsMarkup(posts,isOwner,channel){
+  if(!posts.length)return '<div class="channel-posts">'+emptyChannel('इस चैनल पर अभी कोई Post नहीं है।')+'</div>';
+  return '<div class="channel-posts">'+posts.map(p=>`<article class="channel-post"><div class="small">${esc(p.channel||channel)}</div><div class="channel-post-text">${esc(p.text||'')}</div>${p.imageUrl?`<img src="${esc(p.imageUrl)}" alt="Post image">`:''}</article>`).join('')+'</div>';
+}
+
+async function createChannelPost(channel){
+  const text=(document.getElementById('postText')?.value||'').trim();
+  const file=document.getElementById('postImage')?.files?.[0];
+  if(!text && !file){alert('Post में कुछ लिखें या फोटो चुनें।');return;}
+  try{
+    let imageUrl='';
+    if(file){ const r=await uploadImageToCloudinary(file); imageUrl=r.secure_url; }
+    const post={channel,text,imageUrl,ownerUid:auth.currentUser?.uid||'',createdAt:firebaseReady?firebase.firestore.FieldValue.serverTimestamp():Date.now()};
+    if(firebaseReady){ await db.collection('posts').add(post); }
+    else { const key='vidoraPosts_'+channel; const arr=JSON.parse(localStorage.getItem(key)||'[]'); arr.unshift({...post,createdAt:Date.now()}); localStorage.setItem(key,JSON.stringify(arr)); }
+    alert('Post Publish हो गया ✅'); renderChannelPage(channel,'posts');
+  }catch(e){alert('Post upload नहीं हुआ: '+(e.message||'Cloudinary/Firebase समस्या'));}
+}
+
+function toggleBranding(){ const el=document.getElementById('channelBranding'); if(el)el.classList.toggle('hidden'); }
+function dataUrl(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(file);});}
+function compactImageDataUrl(file,maxW=1280,quality=0.78){
+ return new Promise((resolve,reject)=>{
+  const r=new FileReader();
+  r.onload=()=>{
+   const img=new Image();
+   img.onload=()=>{
+    const scale=Math.min(1,maxW/img.width);
+    const c=document.createElement('canvas');
+    c.width=Math.max(1,Math.round(img.width*scale));
+    c.height=Math.max(1,Math.round(img.height*scale));
+    const ctx=c.getContext('2d');
+    ctx.drawImage(img,0,0,c.width,c.height);
+    resolve(c.toDataURL('image/jpeg',quality));
+   };
+   img.onerror=reject;
+   img.src=r.result;
+  };
+  r.onerror=reject;
+  r.readAsDataURL(file);
+ });
+}
+function uploadImageToCloudinary(file){
+ return new Promise((resolve,reject)=>{
+  const cloudName='zp7wpukk', uploadPreset='vidora_upload';
+  const endpoint='https://api.cloudinary.com/v1_1/'+cloudName+'/image/upload';
+  const form=new FormData(); form.append('file',file); form.append('upload_preset',uploadPreset);
+  fetch(endpoint,{method:'POST',body:form}).then(async r=>{const d=await r.json().catch(()=>({})); if(!r.ok||!d.secure_url)throw new Error(d.error?.message||'Cloudinary image upload failed'); resolve(d);}).catch(reject);
+ });
+}
+async function saveChannelBranding(){
+ if(!channelCreated||!profile.channel){alert('पहले Channel बनाइए।');return;}
+ const av=document.getElementById('channelAvatarFile')?.files?.[0]; const bn=document.getElementById('channelBannerFile')?.files?.[0];
+ if(!av&&!bn){alert('Logo या Banner की फोटो चुनें।');return;}
+ try{
+  const key='vidoraChannelBranding_'+profile.channel;
+  const current=JSON.parse(localStorage.getItem(key)||'{}');
+  if(av){const r=await uploadImageToCloudinary(av);current.avatarUrl=r.secure_url;}
+  if(bn){const r=await uploadImageToCloudinary(bn);current.bannerUrl=r.secure_url;}
+  localStorage.setItem(key,JSON.stringify(current));
+  if(firebaseReady&&auth.currentUser){await db.collection('users').doc(auth.currentUser.uid).set({channelBranding:current},{merge:true});}
+  alert('Channel Logo और Banner सेव हो गया ✅');
+  document.getElementById('channelBranding').classList.add('hidden');
+ }catch(e){alert('Logo/Banner upload नहीं हुआ: '+(e.message||'Cloudinary समस्या'));}
+}
+
+async function subscribeChannelPage(channel){
+  const v=allVideos().find(x=>String(x.channel||'')===String(channel));
+  if(!v)return;
+  await subscribe(String(v.id));
+}
+
+function showChannelVideos(channel){renderChannelPage(channel);}
+
+function openChannelShort(id,event){
+  if(event){event.preventDefault();event.stopPropagation();}
+  document.querySelectorAll('video').forEach(el=>{try{el.pause()}catch(e){}});
+  document.body.classList.add('shorts-mode');
+  show('shortsPage');
+  renderShorts();
+  setTimeout(()=>{
+    const box=document.getElementById('shortsContent');
+    const card=box?.querySelector('.short-card[data-short-id="'+CSS.escape(String(id))+'"]');
+    if(card){
+      card.scrollIntoView({behavior:'auto',block:'start'});
+      const target=card.querySelector('video');
+      if(target){
+        document.querySelectorAll('#shortsContent .short-video').forEach(v=>{if(v!==target)v.pause();});
+        target.currentTime=0;
+        target.muted=false;
+        target.play().catch(()=>{});
+      }
+    }
+  },100);
+}
+
+function openShorts(){
+  document.querySelectorAll('video').forEach(el=>{try{el.pause()}catch(e){}});
+  document.body.classList.add('shorts-mode');
+  show('shortsPage');
+  renderShorts();
+  const box=document.getElementById('shortsContent'); if(box) box.scrollTop=0;
+}
+
+let shortViewTimers = new Map();
+let shortViewInFlight = new Set(); // V85: prevents duplicate concurrent Short view writes
+
+async function addShortView(id){
+  const key=String(id);
+  const seenKey='short_viewed_'+key;
+  if(!key || sessionStorage.getItem(seenKey)) return;
+
+  // V85: lock BEFORE the async Firestore request.
+  // This prevents two timeupdate events from both adding a view
+  // while the first request is still in flight.
+  if(shortViewInFlight.has(key)) return;
+  shortViewInFlight.add(key);
+
+  const remote=remoteVideos.find(x=>String(x.id)===key);
+  if(remote && firebaseReady){
+    try{
+      await db.collection('videos').doc(key).update({
+        views: firebase.firestore.FieldValue.increment(1)
+      });
+      remote.views=Number(remote.views||0)+1;
+      sessionStorage.setItem(seenKey,'1');
+      updateShortViewUIs(key,remote.views);
+      shortViewInFlight.delete(key);
+      return;
+    }catch(e){
+      console.warn('Short Firestore view update failed:',e);
+      // Count once locally for this session and lock this Short,
+      // so repeated timeupdate events cannot create duplicate views.
+      remote.views=Number(remote.views||0)+1;
+      sessionStorage.setItem(seenKey,'1');
+      updateShortViewUIs(key,remote.views);
+      shortViewInFlight.delete(key);
+      return;
+    }
+  }
+
+  const v=videos.find(x=>String(x.id)===key) || allVideos().find(x=>String(x.id)===key);
+  if(!v) return;
+  v.views=Number(v.views||0)+1;
+  if(videos.some(x=>String(x.id)===key)) save();
+  sessionStorage.setItem(seenKey,'1');
+  updateShortViewUIs(key,v.views);
+  shortViewInFlight.delete(key);
+}
+
+function updateShortViewUIs(id,views){
+  const key=String(id);
+  document.querySelectorAll('.short-card').forEach(card=>{
+    if(card.getAttribute('data-short-id')!==key) return;
+    const el=card.querySelector('.short-view-count');
+    if(el) el.textContent='👁️ '+formatCount(views||0)+' views';
+  });
+}
+
+function startShortViewTimer(video){
+  // V84: Shorts view count is triggered only by playback progress (>=2s).
+  // Kept for compatibility; it no longer creates a second counting trigger.
+  return;
+}
+function cancelShortViewTimer(video){
+  const id=String(video?.closest('.short-card')?.getAttribute('data-short-id')||'');
+  if(!id)return;
+  const timer=shortViewTimers.get(id);
+  if(timer){clearTimeout(timer);shortViewTimers.delete(id);}
+}
+
+function checkShortViewProgress(video){
+  if(!video || video.paused || video.ended || !document.body.classList.contains('shorts-mode')) return;
+  const id=String(video.closest('.short-card')?.getAttribute('data-short-id')||'');
+  if(!id || sessionStorage.getItem('short_viewed_'+id)) return;
+  if(Number(video.currentTime||0)>=2) addShortView(id);
+}
+
+function formatShortDuration(seconds){
+  const total=Math.max(0,Math.floor(Number(seconds)||0));
+  const m=Math.floor(total/60);
+  const sec=String(total%60).padStart(2,'0');
+  return m+':'+sec;
+}
+
+function renderShorts(){
+  const box=document.getElementById('shortsContent');
+  const list=allVideos().filter(v=>String(v.videoType||'video')==='short');
+  if(!list.length){
+    box.innerHTML='<div class="panel"><h3>अभी कोई Short नहीं है</h3><p class="small">Upload में ⚡ Short चुनकर पहला Short Publish करें।</p><button class="primary" onclick="openGallery()">⚡ Short Upload करें</button></div>';
+    return;
+  }
+  box.innerHTML=list.map(v=>{
+    const r=reactions[String(v.id)]||'';
+    const channel=String(v.channel||'Vidora Creator');
+    const subscribed=onlineSubscriptionState[channel]===true || localStorage.getItem('sub_'+channel)==='1';
+    const avatar=v.channelAvatar||v.avatar||('https://i.pravatar.cc/100?u='+encodeURIComponent(channel));
+    return `<article class="short-card" data-short-id="${esc(String(v.id))}">
+      <video class="short-video" playsinline autoplay preload="metadata" src="${esc(v.src||v.videoUrl||'')}"></video>
+      <div class="short-overlay"></div>
+      <div class="short-info">
+        <div class="short-channel-row" onclick='event.stopPropagation();openChannel(${JSON.stringify(channel)})'><img class="short-avatar" src="${esc(avatar)}" alt=""><button class="short-subscribe ${subscribed?'subscribed':''}" data-short-sub-channel="${esc(channel)}" onclick='event.stopPropagation();subscribeFromShort(${JSON.stringify(String(v.id))})'>${subscribed?'Subscribed':'Subscribe'}</button></div>
+        <div class="short-channel" onclick='event.stopPropagation();openChannel(${JSON.stringify(channel)})'>@${esc(channel)}</div>
+        <div class="short-title">${esc(v.title)}</div>
+        <div class="small" style="color:#fff"><span class="short-view-count">${formatCount(v.views||0)} views</span><span class="short-duration" data-short-duration="${esc(String(v.id))}">0:00</span></div>
+      </div>
+      <div class="short-center-play">▶</div>
+      <div class="short-actions">
+        <button class="${r==='like'?'active':''}" data-reaction-id="${esc(String(v.id))}" data-reaction-type="like" onclick='event.stopPropagation();like(${JSON.stringify(String(v.id))})'><span class="short-icon">${r==='like'?'❤️':'♡'}</span><span>${formatCount(v.likes||0)}</span></button>
+        <button class="${r==='dislike'?'active':''}" data-reaction-id="${esc(String(v.id))}" data-reaction-type="dislike" onclick='event.stopPropagation();dislike(${JSON.stringify(String(v.id))})'><span class="short-icon">${r==='dislike'?'💔':'👎'}</span><span>${formatCount(v.dislikes||0)}</span></button>
+        <button onclick='event.stopPropagation();toggleComments(${JSON.stringify(String(v.id))})'><span class="short-icon">💬</span><span>${formatCount(commentCountFor(v))}</span></button>
+        <button onclick='event.stopPropagation();shareVideo(${JSON.stringify(String(v.id))})'><span class="short-icon">↗</span><span>Share</span></button>
+        <button class="short-save-btn ${isShortSaved(v.id)?'active':''}" data-short-save="${esc(String(v.id))}" onclick='event.stopPropagation();saveShortLocal(${JSON.stringify(String(v.id))})'><span class="short-icon">🔖</span><span class="short-save-label">${isShortSaved(v.id)?'Saved':'Save'}</span> <span class="short-save-count">(${isShortSaved(v.id)?'1':'0'})</span></button>
+      </div>
+    </article>`;
+  }).join('');
+  const shortVideos=[...box.querySelectorAll('.short-video')];
+  shortVideos.forEach(v=>{
+    v.volume=1; v.muted=false;
+    const card=v.closest('.short-card');
+    const durationEl=card?.querySelector('.short-duration');
+    const syncDuration=()=>{
+      const d=Number(v.duration);
+      if(durationEl) durationEl.textContent=Number.isFinite(d)&&d>0 ? formatShortDuration(d) : '0:00';
+    };
+    v.addEventListener('loadedmetadata',syncDuration);
+    v.addEventListener('durationchange',syncDuration);
+    if(v.readyState>=1) syncDuration();
+    v.addEventListener('play',()=>{
+      shortVideos.forEach(o=>{if(o!==v)o.pause();});
+      card?.classList.remove('is-paused');
+    });
+    v.addEventListener('pause',()=>{
+      cancelShortViewTimer(v);
+      if(!v.ended) card?.classList.add('is-paused');
+    });
+    v.addEventListener('ended',()=>{
+      cancelShortViewTimer(v);
+      card?.classList.remove('is-paused');
+    });
+    v.addEventListener('timeupdate',()=>checkShortViewProgress(v));
+    v.addEventListener('click',()=>{
+      v.muted=false; v.volume=1;
+      if(v.paused){ const p=v.play(); if(p&&p.catch)p.catch(()=>{}); }
+      else v.pause();
+    });
+  });
+  if(window.__shortsObserver){try{window.__shortsObserver.disconnect();}catch(e){}}
+  window.__shortsObserver=new IntersectionObserver(entries=>{
+    entries.forEach(entry=>{
+      const video=entry.target;
+      if(entry.isIntersecting && entry.intersectionRatio>=0.7){
+        shortVideos.forEach(o=>{if(o!==video)o.pause();});
+        const p=video.play();
+        if(p&&p.catch)p.catch(()=>{});
+      }else if(!entry.isIntersecting){ video.pause(); }
+    });
+  },{root:box,threshold:[0.7]});
+  shortVideos.forEach(v=>window.__shortsObserver.observe(v));
+  if(shortVideos[0]){ const p=shortVideos[0].play(); if(p&&p.catch)p.catch(()=>{}); }
+}
+
+
+async function subscribeFromShort(id){
+  const v=allVideos().find(x=>String(x.id)===String(id)); if(!v)return;
+  await subscribe(String(id));
+  const channel=String(v.channel||'');
+  const on=onlineSubscriptionState[channel]===true || localStorage.getItem('sub_'+channel)==='1';
+  document.querySelectorAll('[data-short-sub-channel]').forEach(b=>{if(b.getAttribute('data-short-sub-channel')===channel){b.classList.toggle('subscribed',on);b.textContent=on?'Subscribed':'Subscribe';}});
+}
+function isShortSaved(id){
+  try{
+    const raw=localStorage.getItem('vidora_saved_shorts');
+    const arr=raw?JSON.parse(raw):[];
+    return Array.isArray(arr) && arr.map(String).includes(String(id));
+  }catch(e){return false;}
+}
+
+function saveShortLocal(id){
+  const key='vidora_saved_shorts';
+  const s=String(id);
+  let arr=[];
+  try{
+    const raw=localStorage.getItem(key);
+    const parsed=raw?JSON.parse(raw):[];
+    arr=Array.isArray(parsed)?parsed.map(String):[];
+  }catch(e){arr=[];}
+
+  const wasSaved=arr.includes(s);
+  if(wasSaved) arr=arr.filter(x=>x!==s);
+  else arr.unshift(s);
+
+  try{
+    localStorage.setItem(key,JSON.stringify(arr));
+  }catch(e){
+    alert('Save नहीं हुआ। Browser storage उपलब्ध नहीं है।');
+    return;
+  }
+
+  const savedNow=!wasSaved;
+  document.querySelectorAll('[data-short-save]').forEach(btn=>{
+    if(btn.getAttribute('data-short-save')===s){
+      btn.classList.toggle('active',savedNow);
+      const label=btn.querySelector('.short-save-label');
+      if(label) label.textContent=savedNow?'Saved':'Save';
+      const count=btn.querySelector('.short-save-count');
+      if(count) count.textContent=savedNow?'(1)':'(0)';
+    }
+  });
+  try{localStorage.setItem('vidora_saved_shorts_last',s);}catch(e){}
+}
+
+function searchVideos(){
+ const q=document.getElementById('search').value.toLowerCase().trim();
+ if(!q){show('home');return}
+ show('searchPage');
+ const arr=allVideos().filter(v=>(v.title+" "+v.channel).toLowerCase().includes(q));
+ document.getElementById('results').innerHTML=arr.length?arr.map(v=>`<p onclick='openWatch(${JSON.stringify(String(v.id))})' style="cursor:pointer"><b>${esc(v.title)}</b><br><span class="small">${esc(v.channel)}</span></p>`).join(""):"कोई वीडियो नहीं मिला";
+}
+function focusSearch(){document.getElementById('search').focus()}
+function show(id, pushHistory=true){
+ if(id!=='shortsPage'){
+   document.querySelectorAll('.short-video').forEach(v=>{try{v.pause();}catch(e){}});
+   document.body.classList.remove('shorts-mode');
+   if(window.__shortsObserver){try{window.__shortsObserver.disconnect();}catch(e){}}
+   if(typeof shortViewTimers!=='undefined'){shortViewTimers.forEach(t=>clearTimeout(t));shortViewTimers.clear();}
+ }
+ const pages=["home","watch","upload","profile","searchPage","channelPage","shortsPage","editChannel"];
+ const current=window.__vidoraPage || "home";
+ // Keep Android/WebView Back inside Vidora instead of leaving the SPA.
+ if(current==='watch' && id!=='watch'){
+   try{ minimizeCurrentWatch(); }catch(e){}
+ }
+ if(id==='watch'){
+   try{ document.getElementById('miniPlayer')?.classList.remove('active'); }catch(e){}
+ }
+ if(pushHistory && current!==id){
+   try{ history.pushState({vidoraPage:id},"",location.href); }catch(e){}
+ }
+ window.__vidoraPage=id;
+ pages.forEach(x=>document.getElementById(x).classList.add("hidden"));
+ document.querySelector('.notify-box')?.remove();
+ document.getElementById(id).classList.remove("hidden");
+ if(id==='home')window.scrollTo({top:0,behavior:'smooth'});
+ if(id==='upload' && channelCreated){const channelNameEl=document.getElementById('channelName'); if(channelNameEl)channelNameEl.value=profile.channel||'';}
+ if(id==='shortsPage')renderShorts();
+ if(id==='profile'){updateProfileUI()}
+}
+
+// WebView/Android Back support: restore the previous Vidora screen.
+window.addEventListener('popstate',function(e){
+ const page=e.state?.vidoraPage || "home";
+ show(page,false);
+});
+
+// Create an in-app Home history entry. Back from Watch/Upload/etc. returns to Home;
+// Back once more can leave the app normally.
+try{
+ history.replaceState({vidoraPage:"base"},"",location.href);
+ history.pushState({vidoraPage:"home"},"",location.href);
+}catch(e){}
+window.__vidoraPage="home";
+function esc(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
+render();
+updateProfileUI();
+startFirebase();
+
+// Index-18 data migration: older videos get a views field.
+videos.forEach(v => { v.views = Number(v.views || 0); });
+save();
+
+</script>
+<div style="display:none" data-version="V86-SHORTS-PAUSE-DURATION-VIEW-FIX-V31-CHANNEL-BRANDING-VIDEO-SHORTS-POSTS"></div>
+
+
+<!-- V58 owner action modals -->
+<div id="v58EditModal" class="v58-modal-backdrop" aria-hidden="true">
+  <div class="v58-modal" onclick="event.stopPropagation()">
+    <h3 id="v58EditHeading">Edit video</h3>
+    <input id="v58EditId" type="hidden">
+    <label>Title</label><input id="v58EditTitle" type="text">
+    <label>Description</label><textarea id="v58EditDescription"></textarea>
+    <div id="v58AdvancedFields" class="hidden">
+      <label>Visibility</label><select id="v58EditVisibility"><option>Public</option><option>Unlisted</option><option>Private</option></select>
+      <label>Audience</label><select id="v58EditAudience"><option>Not made for kids</option><option>Made for kids</option></select>
+      <label>Tags</label><input id="v58EditTags" type="text">
+      <label>Location</label><input id="v58EditLocation" type="text">
+      <label>Playlist</label><input id="v58EditPlaylist" type="text">
+      <label>Paid promotion</label><select id="v58EditPaid"><option value="false">No</option><option value="true">Yes</option></select>
+    </div>
+    <div class="v58-modal-actions"><button class="v58-cancel" onclick="closeEditV58()">Cancel</button><button class="v58-primary" onclick="saveEditV58()">Save changes</button></div>
+  </div>
+</div>
+<div id="v58AnalyticsModal" class="v58-modal-backdrop" aria-hidden="true">
+  <div class="v58-modal" onclick="event.stopPropagation()"><h3>Video analytics</h3><div id="v58AnalyticsBody"></div><div class="v58-modal-actions"><button class="v58-cancel" onclick="closeAnalyticsV58()">Close</button></div></div>
+</div>
+<div id="v58PromoteModal" class="v58-modal-backdrop" aria-hidden="true">
+  <div class="v58-modal" onclick="event.stopPropagation()"><h3>Promote video</h3><p>Vidora में अभी कोई advertising/promotion service connected नहीं है। इसलिए यहाँ कोई payment या fake promotion नहीं किया जाएगा.</p><div class="v58-modal-actions"><button class="v58-cancel" onclick="closePromoteV58()">Close</button></div></div>
+</div>
+<div id="v58DeleteModal" class="v58-modal-backdrop" aria-hidden="true">
+  <div class="v58-modal" onclick="event.stopPropagation()"><h3>Delete video</h3><p id="v58DeleteText">यह वीडियो स्थायी रूप से हटाया जाएगा।</p><div id="v58DeleteStatus" class="v58-note"></div><div class="v58-modal-actions"><button class="v58-cancel" onclick="closeDeleteV58()">Cancel</button><button class="v58-danger" onclick="confirmDeleteV58()">Delete</button></div></div>
+</div>
+
+<script id="v58-owner-actions-js">
+let v58CurrentChannel='';
+let v58CurrentTab='home';
+let v58PendingDelete='';
+let v58Advanced=false;
+
+// V58 keeps the creator menu separate from the video's player controls.
+function toggleVideoActionsV58(event,id){
+  if(event){event.preventDefault();event.stopPropagation();}
+  document.querySelectorAll('.v58-actions-menu').forEach(m=>{if(m.id!=='videoActionsV58-'+String(id))m.classList.remove('open');});
+  document.getElementById('videoActionsV58-'+String(id))?.classList.toggle('open');
+}
+function closeVideoActionsV58(){document.querySelectorAll('.v58-actions-menu').forEach(m=>m.classList.remove('open'));}
+document.addEventListener('click',e=>{if(e.target.closest?.('.v58-video-more-wrap'))return;closeVideoActionsV58();});
+function getVideoV58(id){return allVideos().find(v=>String(v.id)===String(id));}
+function isOwnerV58(v){return !!(v && channelCreated && String(profile.channel||'')===String(v.channel||''));}
+function promoteVideoV58(id){closeVideoActionsV58();document.getElementById('v58PromoteModal')?.classList.add('open');}
+function closePromoteV58(){document.getElementById('v58PromoteModal')?.classList.remove('open');}
+async function shareVideoV58(id){closeVideoActionsV58();try{await shareVideo(String(id));}catch(e){console.warn(e);}}
+function analyticsVideoV58(id){
+  closeVideoActionsV58();const v=getVideoV58(id);if(!v)return;
+  const comments=Array.isArray(v.comments)?v.comments.length:Number(v.commentsCount||0);
+  const created=v.createdAt?.toDate? v.createdAt.toDate().toLocaleString('hi-IN') : (v.createdAt?formatTimeAgo(v.createdAt):'—');
+  document.getElementById('v58AnalyticsBody').innerHTML=`<div class="v58-note">${esc(v.title||'Video')}</div><div class="v58-stats-grid"><div class="v58-stat"><b>${formatCount(v.views||0)}</b>Views</div><div class="v58-stat"><b>${formatCount(v.likes||0)}</b>Likes</div><div class="v58-stat"><b>${formatCount(v.dislikes||0)}</b>Dislikes</div><div class="v58-stat"><b>${formatCount(comments)}</b>Comments</div></div><div class="v58-note">Published: ${esc(String(created))}</div>`;
+  document.getElementById('v58AnalyticsModal')?.classList.add('open');
+}
+function closeAnalyticsV58(){document.getElementById('v58AnalyticsModal')?.classList.remove('open');}
+function editVideoV58(id,advanced=false){
+  closeVideoActionsV58();const v=getVideoV58(id);if(!v)return;if(!isOwnerV58(v)){alert('यह वीडियो केवल उसका मालिक Edit कर सकता है।');return;}
+  v58Advanced=!!advanced;document.getElementById('v58EditId').value=String(id);document.getElementById('v58EditTitle').value=v.title||'';document.getElementById('v58EditDescription').value=v.description||'';
+  document.getElementById('v58EditVisibility').value=v.visibility||'Public';document.getElementById('v58EditAudience').value=v.audience||'Not made for kids';document.getElementById('v58EditTags').value=v.tags||'';document.getElementById('v58EditLocation').value=v.location||'';document.getElementById('v58EditPlaylist').value=v.playlist||'';document.getElementById('v58EditPaid').value=String(!!v.paidPromotion);
+  document.getElementById('v58EditHeading').textContent=advanced?'Edit advanced settings in Studio':'Edit video';document.getElementById('v58AdvancedFields').classList.toggle('hidden',!advanced);document.getElementById('v58EditModal').classList.add('open');
+}
+function closeEditV58(){document.getElementById('v58EditModal')?.classList.remove('open');}
+async function saveEditV58(){
+  const id=String(document.getElementById('v58EditId').value||'');const v=getVideoV58(id);if(!v)return;if(!isOwnerV58(v))return;
+  const title=document.getElementById('v58EditTitle').value.trim();if(!title){alert('Title खाली नहीं हो सकता।');return;}
+  const patch={title,description:document.getElementById('v58EditDescription').value.trim()};
+  if(v58Advanced)Object.assign(patch,{visibility:document.getElementById('v58EditVisibility').value,audience:document.getElementById('v58EditAudience').value,tags:document.getElementById('v58EditTags').value.trim(),location:document.getElementById('v58EditLocation').value.trim(),playlist:document.getElementById('v58EditPlaylist').value.trim(),paidPromotion:document.getElementById('v58EditPaid').value==='true'});
+  try{
+    if(firebaseReady && auth.currentUser && remoteVideos.some(x=>String(x.id)===id)) await db.collection('videos').doc(id).update(patch);
+    Object.assign(v,patch);const local=videos.find(x=>String(x.id)===id);if(local){Object.assign(local,patch);save();}
+    closeEditV58();if(v58CurrentChannel)await renderChannelPage(v58CurrentChannel,v58CurrentTab);else render();
+    alert('✅ Video details update हो गए।');
+  }catch(e){alert('Edit save नहीं हुआ: '+(e.message||'Firebase समस्या'));}
+}
+async function saveVideoToDeviceV58(id){
+  closeVideoActionsV58();const v=getVideoV58(id);if(!v)return;if(!isOwnerV58(v)){alert('यह वीडियो केवल उसका मालिक Save to device कर सकता है।');return;}
+  const url=v.src||v.videoUrl||'';if(!url){alert('Video URL नहीं मिला।');return;}
+  const filename=((String(v.title||'vidora-video').replace(/[^a-z0-9अ-ह0-9_-]+/gi,'_')||'vidora-video').slice(0,80))+'.mp4';
+  try{
+    const r=await fetch(url,{mode:'cors'});if(!r.ok)throw new Error('Download response '+r.status);const blob=await r.blob();const obj=URL.createObjectURL(blob);const a=document.createElement('a');a.href=obj;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(obj),1500);
+  }catch(e){
+    const a=document.createElement('a');a.href=url;a.download=filename;a.target='_blank';document.body.appendChild(a);a.click();a.remove();
+    alert('Browser ने direct file save को block किया तो video नई tab में खुलेगा; वहाँ से Save/Download करें।');
+  }
+}
+// V102 — Delete System restored from the previously working V55/V56 Delete flow.
+// Only this Delete logic is changed. Upload, Publish, Thumbnail, Views, Likes,
+// Shorts, Profile/Banner and the existing 3-dot menu are intentionally untouched.
+function isOwnerDeleteV102(v){
+  if(!v || !firebaseReady || !auth.currentUser || !v.ownerUid) return false;
+  return String(v.ownerUid) === String(auth.currentUser.uid);
+}
+
+function openDeleteV58(id){
+  closeVideoActionsV58();
+  const key = String(id || '');
+  const v = getVideoV58(key);
+  if(!v) return;
+
+  if(!isOwnerDeleteV102(v)){
+    alert('यह वीडियो केवल उसका मालिक Delete कर सकता है।');
+    return;
+  }
+
+  v58PendingDelete = key;
+  const text = document.getElementById('v58DeleteText');
+  if(text) text.textContent = '“' + String(v.title || 'यह वीडियो') +
+    '” को Delete करने पर Vidora का record और Cloudinary asset हटाया जाएगा।';
+
+  const status = document.getElementById('v58DeleteStatus');
+  if(status) status.textContent = '';
+
+  document.getElementById('v58DeleteModal')?.classList.add('open');
+}
+
+function closeDeleteV58(){
+  v58PendingDelete = '';
+  document.getElementById('v58DeleteModal')?.classList.remove('open');
+}
+
+async function confirmDeleteV58(){
+  const id = String(v58PendingDelete || '');
+  if(!id) return;
+
+  const v = getVideoV58(id);
+  if(!v){
+    closeDeleteV58();
+    return;
+  }
+
+  if(!firebaseReady || !auth.currentUser){
+    alert('Delete करने के लिए Firebase login तैयार होना जरूरी है।');
+    return;
+  }
+
+  if(!isOwnerDeleteV102(v)){
+    alert('यह वीडियो केवल उसका मालिक Delete कर सकता है।');
+    closeDeleteV58();
+    return;
+  }
+
+  const status = document.getElementById('v58DeleteStatus');
+  const btn = document.querySelector('#v58DeleteModal .delete-ok');
+
+  if(btn){
+    btn.disabled = true;
+    btn.textContent = 'Deleting…';
+  }
+  if(status) status.textContent = 'Cloudinary से video हटाया जा रहा है…';
+
+  try{
+    // Keep the working V55/V56 order:
+    // 1) Delete Cloudinary asset through the deployed backend.
+    // 2) Only after that succeeds, delete Firestore record/reactions.
+    const resp = await fetch('/api/delete-video', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        publicId: v.publicId || '',
+        thumbnailUrl: v.thumbnailUrl || '',
+        ownerUid: auth.currentUser.uid
+      })
+    });
+
+    const data = await resp.json().catch(() => ({}));
+    if(!resp.ok || !data.ok){
+      throw new Error(data.error || 'Cloudinary Delete endpoint उपलब्ध नहीं है।');
+    }
+
+    if(status) status.textContent = 'Vidora record हटाया जा रहा है…';
+
+    const ref = db.collection('videos').doc(id);
+    const reactionSnap = await ref.collection('reactions').get();
+    const batch = db.batch();
+
+    reactionSnap.forEach(doc => batch.delete(doc.ref));
+    batch.delete(ref);
+    await batch.commit();
+
+    remoteVideos = remoteVideos.filter(x => String(x.id) !== id);
+    videos = videos.filter(x => String(x.id) !== id);
+    delete reactions[id];
+    save();
+
+    currentWatchVideoId = '';
+    const watch = document.getElementById('watchVideo');
+    if(watch){
+      try{ watch.pause(); }catch(e){}
+    }
+
+    closeDeleteV58();
+    render();
+    show('home');
+    alert('✅ वीडियो पूरी तरह Delete हो गया।');
+
+  }catch(e){
+    console.error('V102 Delete failed:', e);
+    if(status) status.textContent = 'Delete नहीं हुआ — वीडियो सुरक्षित रखा गया है।';
+    alert('❌ वीडियो Delete नहीं हुआ।\n\n' + (e.message || 'Cloudinary/Firebase समस्या'));
+  }finally{
+    if(btn){
+      btn.disabled = false;
+      btn.textContent = 'Delete';
+    }
+  }
+}
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter' && document.activeElement?.id==='commentsSheetInput'){e.preventDefault();sendCommentFromSheet();}
+});
+</script>
+
+<div id="commentsBackdrop" class="comments-backdrop" onclick="closeCommentsSheet()"></div>
+<div id="commentsSheet" class="comments-sheet" aria-hidden="true">
+  <div class="comments-sheet-head"><span id="commentsSheetTitle">टिप्पणियां 0</span><button class="comments-sheet-close" type="button" onclick="closeCommentsSheet()">×</button></div>
+  <div class="comments-sort">सभी टिप्पणियां</div>
+  <div id="commentsSheetList" class="comments-list"><div class="comments-empty">अभी तक कोई टिप्पणी नहीं</div></div>
+  <div class="comments-emoji">😀 😂 ❤️ 👍 😍</div>
+  <div class="comments-compose">
+    <img id="commentsMyAvatar" class="comments-avatar" src="https://i.pravatar.cc/80?u=vidora" alt="">
+    <input id="commentsSheetInput" placeholder="टिप्पणी लिखें..." autocomplete="off">
+    <button class="comments-send" type="button" onclick="sendCommentFromSheet()">➤</button>
+  </div>
+</div>
+
+</body>
+<div style="display:none" data-version="V59-EVERY-VIDEO-3DOT-FROM-V55"></div>
+<div style="display:none" data-version="V101-THUMBNAIL-GALLERY-PREVIEW-FINAL-FIX"></div>
+<div style="display:none" data-version="V102-DELETE-RESTORED-FROM-V55-V56"></div>
+</html>
